@@ -49,7 +49,9 @@ Status: **code ready, awaiting first EAS build + on-device test.** Go/no-go is f
 ## OEM / device
 
 - Phone: **Realme Narzo 50 Pro 5G, Android 14 (Realme UI)**. It replaced the Micromax IN Note 1.
-  - Android 13+ **restricted settings** may grey out notification access for sideloaded apps. Fix: App info → ⋮ → "Allow restricted settings".
+  - `adb install -r` (streamed) **succeeded with no Play Protect block**. Dev client connects via `adb reverse tcp:8081 tcp:8081` + `exp+pulse://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081`. Logs show `fabric: true` (New Arch).
+  - Even after the ADB install, `ACCESS_RESTRICTED_SETTINGS` was `deny` (installer `pc`), so restricted settings still apply.
+  - Android 13+ **restricted settings** greys out notification access for sideloaded apps. Fix: App info → ⋮ → "Allow restricted settings".
   - Realme/ColorOS battery management is aggressive and can kill the listener. Needed: App info → Battery → allow background activity + **Auto launch** on, and lock Pulse in recents. This belongs in the E7 keep-alive guide.
 - Build 2 (`68b64c12`) succeeded. The dev APK is ~240 MB (all ABIs).
 - **Install blocker:** installing from the browser is blocked by Play Protect *enhanced fraud protection* (India pilot): "This app can request access to sensitive data…". It targets internet-sideloaded APKs that request sensitive permissions, and `BIND_NOTIFICATION_LISTENER_SERVICE` is one of them. It can't be overridden from the dialog. Workaround: `adb install` over USB (not an internet sideload source). Alternative: turn Play Protect scanning off temporarily and back on afterwards. **Demo impact:** anyone installing the M9 release APK from a link will hit the same block. Plan on ADB or a Play Console internal-testing track.
