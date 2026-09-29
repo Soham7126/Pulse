@@ -208,6 +208,16 @@ type Palette = Record<string, string>; // char -> hex; '.' = transparent
 - **Skins = palettes.** Phase 1 ships one palette; Phase 2 adds more.
 - Source art can be authored in Piskel/Aseprite and converted with a small script (`scripts/png-to-sprite.ts`).
 
+**Art reference (style only):** `docs/design/cat-stock-reference.png` is a watermarked stock image. It is kept locally and gitignored. **Never trace, convert or ship it.** Redraw an original 32×32 cat that borrows only these traits:
+- Chunky style: 1px near-black outline, flat fills, no anti-aliasing, no dithering.
+- Big head (about half the sprite height), a compact sitting body, front paws outlined as two blocks.
+- Palette roles (approximate; lock exact hexes in M4): white body, tan patches (ears/cheeks/haunch/tail), a dark-brown crown patch, pale-pink inner ears, pink cheek blush, black eyes/mouth, a soft grey ground shadow.
+- Face: solid square eyes, a small "ω"-style mouth, cheek blush one row under the eyes.
+- Tail curls up beside the body. That makes it a good candidate for the tail-sway/twitch idle frames.
+- The grey floor shadow goes on the scene's floor line so every pose sits on the same baseline.
+
+Make it clearly our own: a different patch layout, ear shape and tail curve, so it is not a copy.
+
 ## 10. AI layer (last Phase 1 milestone)
 
 ```

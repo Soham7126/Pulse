@@ -41,3 +41,6 @@ example
 # generated native folders
 /ios
 /android
+
+# Watermarked stock art: local style reference only, never ship or commit
+docs/design/cat-stock-reference.png
