@@ -9,6 +9,7 @@ import { listAppRules, setAppMode } from '../../db/queries';
 import { ActionButton, Card, Icon, Pill, appTint, styles as ui } from '../../ui/components';
 import { T } from '../../ui/text';
 import { COLORS, SHADOW, alpha } from '../../ui/theme';
+import { MEDIUM_WIDGET, SMALL_WIDGET } from '../../widget/pulse-widgets';
 
 export default function Apps() {
   const [rules, setRules] = useState(() => listAppRules(getDb()));
@@ -52,14 +53,15 @@ export default function Apps() {
               </T>
               <View style={ui.row}>
                 <ActionButton
-                  label="Add widget"
+                  label="Add wide widget"
                   icon="widgets"
                   primary
-                  onPress={() => requestPinWidget({ widgetName: 'Hello' })}
+                  onPress={() => requestPinWidget({ widgetName: MEDIUM_WIDGET })}
                   style={{ flex: 1 }}
                 />
-                <ActionButton label="Access settings" icon="open-in-new" onPress={() => NotificationListener.openPermissionSettings()} />
+                <ActionButton label="Small" icon="widgets" onPress={() => requestPinWidget({ widgetName: SMALL_WIDGET })} />
               </View>
+              <ActionButton label="Notification access settings" icon="open-in-new" onPress={() => NotificationListener.openPermissionSettings()} />
             </Card>
             <T variant="labelMd" weight="semibold" color={COLORS.onSurfaceVariant} upper style={{ letterSpacing: 1.2, paddingHorizontal: 4 }}>
               Apps that have notified you

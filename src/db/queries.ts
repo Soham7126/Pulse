@@ -69,9 +69,3 @@ export function setSetting(db: SQLiteDatabase, key: string, value: string): void
     value,
   );
 }
-
-export function widgetSnapshot(db: SQLiteDatabase): { count: number; lastApp?: string } {
-  const count = db.getFirstSync<{ n: number }>('SELECT COUNT(*) AS n FROM capture_log')?.n ?? 0;
-  const last = listCaptures(db, 1)[0];
-  return { count, lastApp: last ? (last.label ?? last.package_name) : undefined };
-}

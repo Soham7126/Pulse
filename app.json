@@ -30,20 +30,38 @@
       [
         "react-native-android-widget",
         {
+          "fonts": [
+            "./node_modules/@expo-google-fonts/plus-jakarta-sans/400Regular/PlusJakartaSans_400Regular.ttf",
+            "./node_modules/@expo-google-fonts/plus-jakarta-sans/600SemiBold/PlusJakartaSans_600SemiBold.ttf",
+            "./node_modules/@expo-google-fonts/plus-jakarta-sans/700Bold/PlusJakartaSans_700Bold.ttf",
+            "./node_modules/@expo-google-fonts/jetbrains-mono/500Medium/JetBrainsMono_500Medium.ttf"
+          ],
           "widgets": [
             {
-              "name": "Hello",
+              "name": "PulseSmall",
               "label": "Pulse",
-              "description": "Pulse cat (M0 spike)",
+              "description": "The cat in its room",
               "minWidth": "110dp",
               "minHeight": "110dp",
               "targetCellWidth": 2,
-              "targetCellHeight": 2
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical"
+            },
+            {
+              "name": "PulseMedium",
+              "label": "Pulse (wide)",
+              "description": "The cat plus what needs you",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical"
             }
           ]
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-font"
     ],
     "experiments": {
       "reactCompiler": true
