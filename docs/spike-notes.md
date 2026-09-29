@@ -32,6 +32,11 @@ Status: **code ready, awaiting first EAS build + on-device test.** Go/no-go is f
 - Quirk: Expo native functions check how many arguments they get when called. Passing one directly as a handler (`onPress={Mod.fn}`) forwards the press event and throws "Received 1 arguments, but 0 was expected". TypeScript doesn't catch it, so always wrap: `onPress={() => Mod.fn()}`.
 - Not yet handled (M1): `onNotificationRemoved`, ongoing/media filtering (flags are already passed), hard-block before the JS hop.
 
+### Device result (Realme, Android 14, 2026-09-29)
+- Real notifications reach the JS headless task: `count=1 pkg=com.whatsapp`, `count=2 pkg=com.whatsapp`, `count=3 pkg=com.antivirus`. Logs held only counts and packages.
+- The listener process stays bound by the system (`PulseNotificationListenerService` connection flagged FGS), and `startService` from the callback was **not** blocked.
+- **WhatsApp posts 2 notifications for 1 message** (10 ms apart: the message plus a group summary). M1/M2 dedupe must skip summary notifications (`FLAG_GROUP_SUMMARY` in `flags`).
+
 ### To verify on device
 - [ ] `startService` from the listener callback isn't blocked by background-start limits while the app is swiped away. If `PulseListener` logs "headless start blocked", the fallback is to buffer natively and drain on the next JS wake.
 - [ ] Headless task runs with the app closed (widget counter bumps).
