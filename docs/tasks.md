@@ -62,10 +62,10 @@ Work milestone by milestone. Do not start a milestone until the previous one's *
 ## M4 — Cat state engine and sprites (start art in parallel with M1)
 
 - [ ] Lock the palette (wall, floor, cat white/brown/pink, line) and the light/dark/night variants
-- [ ] Sprite text-grid format + `renderSpriteToSvg` with integer scaling
-- [ ] Author sprites at 32×32: `sleep_curled`, `sleep_night`, `awake_sit`, `alert`, `delivery`, `yarn`, `waking`
+- [x] Sprite text-grid format + `renderSpriteToSvg` with integer scaling
+- [ ] Author sprites at 32×32: `sleep_curled`, `sleep_night`, `awake_sit`, `alert`, `delivery`, `yarn`, `waking` — done: `sleep_curled`, `awake_sit` (3 idle frames each)
 - [ ] Author 2-4 idle frames per pose (in-app)
-- [ ] Redraw the mascot as an original character (do **not** ship the watermarked stock image)
+- [x] Redraw the mascot as an original character (do **not** ship the watermarked stock image)
 - [ ] `computePose()` pure function + thresholds constants file
 - [ ] Unit tests for precedence, night window, thresholds, empty state
 - [ ] Log state changes to `cat_state_log`
@@ -89,7 +89,7 @@ Work milestone by milestone. Do not start a milestone until the previous one's *
 
 ## M6 — App UI
 
-- [ ] Tab layout (Today / Away / History / Settings)
+- [x] Tab layout — per Stitch: Today / Briefing / Ask Pulse / Apps (screens 2-4 UI on real data; features still to build)
 - [ ] Animated in-app cat with per-pose idle loops and the `waking` one-shot
 - [ ] Today: cat, counts, top items, "N notifications → M important"
 - [ ] Collapsed group rows with tap-to-expand
