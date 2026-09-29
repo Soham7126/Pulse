@@ -66,5 +66,5 @@ Status: **code ready, awaiting first EAS build + on-device test.** Go/no-go is f
 
 ## Decision gate
 
-- Listener: _pending device test_
-- Widget: _pending device test_
+- Listener: **GO**. The local Expo module delivers real notifications to the headless JS task on Android 14 (Realme).
+- Widget: **GO**. react-native-android-widget 0.22.1 renders and updates from the headless task (after the `'use no memo'` fix).

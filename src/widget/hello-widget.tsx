@@ -9,9 +9,9 @@ const TEST_SVG =
   '<rect width="8" height="5" fill="#E8DCC8"/><rect y="5" width="8" height="3" fill="#8B5A2B"/>' +
   '<rect x="3" y="3" width="2" height="2" fill="#FFFFFF"/></svg>';
 
-type Props = { count: number; lastPackage?: string };
+type Props = { count: number; lastApp?: string };
 
-export function HelloWidget({ count, lastPackage }: Props) {
+export function HelloWidget({ count, lastApp }: Props) {
   return (
     <FlexWidget
       style={{
@@ -24,7 +24,7 @@ export function HelloWidget({ count, lastPackage }: Props) {
     >
       <SvgWidget svg={TEST_SVG} style={{ width: 64, height: 64 }} />
       <TextWidget
-        text={count > 0 ? `${count} · ${lastPackage}` : 'hello'}
+        text={count > 0 ? `${count} · ${lastApp}` : 'hello'}
         style={{ fontSize: 12, color: '#3B2A1A' }}
         maxLines={1}
         truncate="END"

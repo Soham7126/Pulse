@@ -10,12 +10,12 @@ Work milestone by milestone. Do not start a milestone until the previous one's *
 
 - [x] Create Expo app (TypeScript, expo-router) and initialize git
 - [x] Add `expo-dev-client`; configure `app.config.ts` and `eas.json` (`development` profile, Android APK) — used static `app.json`, see spike-notes
-- [ ] Create EAS project; run first cloud build; install the APK on the physical phone
-- [ ] Add the notification listener library; confirm it works with the Expo SDK (config plugin / prebuild needs)
-- [ ] Add the widget library; render a hard-coded "hello" widget on the home screen
-- [ ] Log (count-only) that a real notification from any app reaches JS while the app is backgrounded
-- [ ] Record findings in `docs/spike-notes.md`: library versions, quirks, what widget primitives are supported (SVG? text? images?), OEM behavior
-- [ ] Decision gate: if either library fails, pick the fallback (custom Expo module or alternative lib) before continuing
+- [x] Create EAS project; run first cloud build; install the APK on the physical phone
+- [x] Add the notification listener library; confirm it works with the Expo SDK (config plugin / prebuild needs) — local Expo module, see spike-notes
+- [x] Add the widget library; render a hard-coded "hello" widget on the home screen
+- [x] Log (count-only) that a real notification from any app reaches JS while the app is backgrounded
+- [x] Record findings in `docs/spike-notes.md`: library versions, quirks, what widget primitives are supported (SVG? text? images?), OEM behavior
+- [x] Decision gate: if either library fails, pick the fallback (custom Expo module or alternative lib) before continuing
 
 **Exit check:** a real WhatsApp message triggers JS while the app is closed, and a placeholder widget is on the home screen.
 
@@ -23,12 +23,12 @@ Work milestone by milestone. Do not start a milestone until the previous one's *
 
 - [ ] Onboarding screen explaining notification access; deep link to the system settings screen
 - [ ] Permission state detection (granted/revoked) with a re-prompt path
-- [ ] Headless task receives notifications; extract package, key, title, text, timestamp
-- [ ] Package → app map (§13 of architecture); log the real packages the phone emits and correct the map
-- [ ] Drop ongoing/system/media notifications
-- [ ] Hard-block list (banking, authenticator, password managers); enforced before any storage
+- [x] Headless task receives notifications; extract package, key, title, text, timestamp
+- [ ] Package → app map (§13 of architecture); log the real packages the phone emits and correct the map — map done (8 packages); real-package check pending on device
+- [x] Drop ongoing/system/media notifications
+- [x] Hard-block list (banking, authenticator, password managers); enforced before any storage
 - [ ] Per-app allow/deny settings screen (persisted)
-- [ ] OTP/digit redaction function + tests
+- [x] OTP/digit redaction function + tests
 
 **Exit check:** allowed apps appear in a raw debug list within ~2s; a blocked app never appears; OTPs are masked.
 
