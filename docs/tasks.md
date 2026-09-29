@@ -21,13 +21,13 @@ Work milestone by milestone. Do not start a milestone until the previous one's *
 
 ## M1 — Capture
 
-- [ ] Onboarding screen explaining notification access; deep link to the system settings screen
-- [ ] Permission state detection (granted/revoked) with a re-prompt path
+- [x] Onboarding screen explaining notification access; deep link to the system settings screen
+- [x] Permission state detection (granted/revoked) with a re-prompt path
 - [x] Headless task receives notifications; extract package, key, title, text, timestamp
 - [ ] Package → app map (§13 of architecture); log the real packages the phone emits and correct the map — map done (8 packages); real-package check pending on device
 - [x] Drop ongoing/system/media notifications
 - [x] Hard-block list (banking, authenticator, password managers); enforced before any storage
-- [ ] Per-app allow/deny settings screen (persisted)
+- [x] Per-app allow/deny settings screen (persisted) — default: PRD apps on, others off
 - [x] OTP/digit redaction function + tests
 
 **Exit check:** allowed apps appear in a raw debug list within ~2s; a blocked app never appears; OTPs are masked.
