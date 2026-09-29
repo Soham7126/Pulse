@@ -48,7 +48,9 @@ Status: **code ready, awaiting first EAS build + on-device test.** Go/no-go is f
 
 ## OEM / device
 
-- Phone model / Android version: _TBD (from user)_.
+- Phone: **Micromax IN Note 1** (shipped Android 10, updatable to 11; exact version TBD). Near-stock Android. The Android 13+ "restricted settings" step doesn't apply.
+- Build 2 (`68b64c12`) succeeded. The dev APK is ~240 MB (all ABIs).
+- **Install blocker:** installing from the browser is blocked by Play Protect *enhanced fraud protection* (India pilot): "This app can request access to sensitive data…". It targets internet-sideloaded APKs that request sensitive permissions, and `BIND_NOTIFICATION_LISTENER_SERVICE` is one of them. It can't be overridden from the dialog. Workaround: `adb install` over USB (not an internet sideload source). Alternative: turn Play Protect scanning off temporarily and back on afterwards. **Demo impact:** anyone installing the M9 release APK from a link will hit the same block. Plan on ADB or a Play Console internal-testing track.
 - Battery setting used: _TBD_.
 
 ## Decision gate
