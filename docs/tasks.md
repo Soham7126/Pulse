@@ -8,8 +8,8 @@ Work milestone by milestone. Do not start a milestone until the previous one's *
 
 ## M0 — Setup and feasibility spike (do first, biggest risk)
 
-- [ ] Create Expo app (TypeScript, expo-router) and initialize git
-- [ ] Add `expo-dev-client`; configure `app.config.ts` and `eas.json` (`development` profile, Android APK)
+- [x] Create Expo app (TypeScript, expo-router) and initialize git
+- [x] Add `expo-dev-client`; configure `app.config.ts` and `eas.json` (`development` profile, Android APK) — used static `app.json`, see spike-notes
 - [ ] Create EAS project; run first cloud build; install the APK on the physical phone
 - [ ] Add the notification listener library; confirm it works with the Expo SDK (config plugin / prebuild needs)
 - [ ] Add the widget library; render a hard-coded "hello" widget on the home screen
