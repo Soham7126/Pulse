@@ -5,6 +5,7 @@ export const NOTIFICATION_TASK = 'PulseNotification';
 
 export type RawNotification = {
   packageName: string;
+  appLabel: string | null;
   key: string;
   postTime: number;
   flags: number;

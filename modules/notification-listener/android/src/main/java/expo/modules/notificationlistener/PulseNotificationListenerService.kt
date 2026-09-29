@@ -2,6 +2,7 @@ package expo.modules.notificationlistener
 
 import android.app.Notification
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
@@ -16,6 +17,7 @@ class PulseNotificationListenerService : NotificationListenerService() {
     // Title/text only travel to the JS task, which filters and redacts before anything is stored.
     val data = Bundle().apply {
       putString("packageName", sbn.packageName)
+      putString("appLabel", appLabel(sbn.packageName))
       putString("key", sbn.key)
       putDouble("postTime", sbn.postTime.toDouble())
       putInt("flags", notification.flags)
@@ -31,6 +33,14 @@ class PulseNotificationListenerService : NotificationListenerService() {
       Log.w(TAG, "headless start blocked for ${sbn.packageName}: ${e.javaClass.simpleName}")
     }
   }
+
+  // Android 11+ package visibility can hide some apps; fall back to the package name in JS.
+  private fun appLabel(pkg: String): String? =
+    try {
+      packageManager.getApplicationLabel(packageManager.getApplicationInfo(pkg, 0)).toString()
+    } catch (e: PackageManager.NameNotFoundException) {
+      null
+    }
 
   companion object {
     private const val TAG = "PulseListener"
