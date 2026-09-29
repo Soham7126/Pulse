@@ -47,12 +47,26 @@ export function upsertCapture(db: SQLiteDatabase, row: Omit<CaptureRow, 'label'>
   return !existed;
 }
 
-export function listCaptures(db: SQLiteDatabase, limit = 100): CaptureRow[] {
+export function listCaptures(db: SQLiteDatabase, limit = 100, sinceUtc = 0): CaptureRow[] {
   return db.getAllSync<CaptureRow>(
     `SELECT c.key, c.package_name, r.label, c.title, c.text, c.posted_at_utc
      FROM capture_log c LEFT JOIN app_rules r ON r.package_name = c.package_name
+     WHERE c.posted_at_utc >= ?
      ORDER BY c.posted_at_utc DESC LIMIT ?`,
+    sinceUtc,
     limit,
+  );
+}
+
+export function getSetting(db: SQLiteDatabase, key: string): string | null {
+  return db.getFirstSync<{ value: string }>('SELECT value FROM settings WHERE key = ?', key)?.value ?? null;
+}
+
+export function setSetting(db: SQLiteDatabase, key: string, value: string): void {
+  db.runSync(
+    'INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value',
+    key,
+    value,
   );
 }
 

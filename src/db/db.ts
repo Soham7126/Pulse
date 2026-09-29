@@ -16,6 +16,7 @@ const MIGRATIONS: readonly string[] = [
      posted_at_utc INTEGER NOT NULL
    );
    CREATE INDEX idx_capture_time ON capture_log(posted_at_utc);`,
+  `CREATE TABLE settings (key TEXT PRIMARY KEY, value TEXT);`,
 ];
 
 let db: SQLiteDatabase | null = null;
