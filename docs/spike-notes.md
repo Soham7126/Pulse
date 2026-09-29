@@ -48,7 +48,9 @@ Status: **code ready, awaiting first EAS build + on-device test.** Go/no-go is f
 
 ## OEM / device
 
-- Phone: **Micromax IN Note 1** (shipped Android 10, updatable to 11; exact version TBD). Near-stock Android. The Android 13+ "restricted settings" step doesn't apply.
+- Phone: **Realme Narzo 50 Pro 5G, Android 14 (Realme UI)**. It replaced the Micromax IN Note 1.
+  - Android 13+ **restricted settings** may grey out notification access for sideloaded apps. Fix: App info → ⋮ → "Allow restricted settings".
+  - Realme/ColorOS battery management is aggressive and can kill the listener. Needed: App info → Battery → allow background activity + **Auto launch** on, and lock Pulse in recents. This belongs in the E7 keep-alive guide.
 - Build 2 (`68b64c12`) succeeded. The dev APK is ~240 MB (all ABIs).
 - **Install blocker:** installing from the browser is blocked by Play Protect *enhanced fraud protection* (India pilot): "This app can request access to sensitive data…". It targets internet-sideloaded APKs that request sensitive permissions, and `BIND_NOTIFICATION_LISTENER_SERVICE` is one of them. It can't be overridden from the dialog. Workaround: `adb install` over USB (not an internet sideload source). Alternative: turn Play Protect scanning off temporarily and back on afterwards. **Demo impact:** anyone installing the M9 release APK from a link will hit the same block. Plan on ADB or a Play Console internal-testing track.
 - Battery setting used: _TBD_.
