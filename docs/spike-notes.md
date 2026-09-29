@@ -42,6 +42,7 @@ Status: **code ready, awaiting first EAS build + on-device test.** Go/no-go is f
 - Config plugin options (from installed `config-plugin.type.d.ts`): `widgets[{ name, label, description, minWidth:'Ndp', minHeight:'Ndp', targetCellWidth, targetCellHeight, maxResizeWidth, maxResizeHeight, previewImage, resizeMode, widgetFeatures, updatePeriodMillis (min 1_800_000), packageName }]`, plus `fonts`.
 - Primitives: FlexWidget, OverlapWidget, ListWidget, ImageWidget, TextWidget, IconWidget, SvgWidget.
 - **SvgWidget** takes a raw SVG string (`svg` prop). The native side uses AndroidSVG 1.4 → `PictureDrawable`. AndroidSVG supports `shape-rendering="crispEdges"`, which fits the sprite plan (arch §8). The spike widget draws a test wall/floor/block to confirm it's crisp.
+- **Quirk: React Compiler breaks widgets.** SDK 57 enables `experiments.reactCompiler`, which turns widget components into hook-using code. The renderer then throws "Invalid Hook Call detected in HelloWidget". Every widget component file must start with the `'use no memo';` directive. It works per file, so the compiler stays on for the app.
 - `requestWidgetUpdate({ widgetName, renderWidget })` is called from the headless notification task.
 - `renderWidget` accepts `{ light, dark }` for dark mode (0.19+).
 - `requestPinWidget` (0.22) can show the launcher's add-widget prompt. Possible onboarding nicety later.

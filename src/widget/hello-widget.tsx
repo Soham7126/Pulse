@@ -1,3 +1,6 @@
+// Widgets are rendered as plain functions; React Compiler output uses hooks, which the widget renderer rejects.
+'use no memo';
+
 import { FlexWidget, SvgWidget, TextWidget } from 'react-native-android-widget';
 
 // M0 spike: wall + floor + a white block, to check SvgWidget keeps crispEdges before real sprites (M4/M5).
