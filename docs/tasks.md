@@ -81,7 +81,7 @@ Work milestone by milestone. Do not start a milestone until the previous one's *
 - [ ] Ingest → recompute pose → debounce → widget update
 - [ ] Scheduled refresh (day/night and expiry without new notifications)
 - [ ] Light/dark/night palettes; verify on real wallpapers
-- [ ] Medium (4×2) widget: cat left, top 3 items right; tap opens the app
+- [ ] Medium (4×2) widget per `docs/design/widget-reference.png`: scene panel left; headline + top 3 rows + "N → M important" footer right (hidden in `sleep_*`); tap opens the app
 - [ ] Widget survives reboot and app kill; verify on device
 - [ ] Spike (time-boxed, 0.5 day): native frame-flip idle loop via config plugin; keep only if it works cleanly
 

@@ -182,7 +182,7 @@ The engine is deterministic and has no I/O, which makes it ideal for unit tests 
 
 - Widgets are rendered from JavaScript by the widget library's task handler. Verify what primitives it supports; the plan uses an **SVG-based render** of the sprite so no PNG assets are needed.
 - **Scene:** wall color rect + plank floor rect + cat sprite positioned on the floor line, drawn in one SVG at integer scale.
-- **Text line:** at most one; hidden for `sleep_*`. If custom pixel fonts are unsupported in widgets, use the system monospace.
+- **Text:** the small widget has at most one line. The medium widget has a summary panel (headline, 3 rows, footer; see PRD 6.3). Both are hidden for `sleep_*`. Custom fonts are supported via the widget plugin's `fonts` option, with the system monospace as fallback.
 - **Palettes:** `light` and `dark` (and `night` for `sleep_night`).
 - **Update triggers:**
   1. Ingest pipeline finishing (primary),

@@ -49,9 +49,13 @@ Students and young professionals in India (primary), Android users, heavy WhatsA
 
 ## 6. The cat theme (locked)
 
-**Scene:** The widget background is one quiet scene: a plain wall and a wooden floor. The cat lives on the floor. In the default state it is asleep on the floor and that is all you see. Other states are the same room and the same cat, just awake. No cards, no gradients, no icons beyond the cat.
+**Scene:** The cat lives in one quiet scene: a plain wall and a wooden floor. In the default state it is asleep on the floor and that is all you see. Other states are the same room and the same cat, just awake. The scene itself has no gradients and no icons beyond the cat.
 
-**Text on the widget:** at most one short pixel-font line, and none at all when calm.
+**Visual reference:** `docs/design/widget-reference.png`. It sets the layout and mood only. Where it differs from this section (cat colours, pose, extra labels), this section wins.
+
+**Small widget (strict):** scene + cat only, no cards or chips. At most one short pixel-font line, and none at all when calm.
+
+**Medium widget:** the scene sits in a rounded panel on the left. The right side holds a panel with a headline, up to 3 item rows and a footer (see 6.3). When calm (`sleep_*`), the right panel is hidden and the scene alone is shown.
 
 ### 6.1 Locked pose list
 
@@ -80,7 +84,12 @@ Handled/opened items stop counting. The cat returns to sleep when nothing qualif
 
 ### 6.3 Widget sizes
 - **Small (2×2):** floor scene + cat. Optional single line: `3 important`.
-- **Medium (4×2):** cat on the left, top 3 items on the right in pixel-styled text. Same scene.
+- **Medium (4×2):** the scene in a rounded panel on the left. The right panel has:
+  - a headline, e.g. `2 things need you`;
+  - up to 3 item rows, each with a small intent icon, the app or sender, and a truncated **redacted** snippet;
+  - a footer `31 notifications → 3 important` with an open-app arrow.
+
+  The cat's pose always comes from the state engine (e.g. items needing you → awake, never asleep next to a list). Monospace/pixel font for labels. No gradients. When calm, only the scene is shown.
 
 ## 7. Intents (classification taxonomy)
 

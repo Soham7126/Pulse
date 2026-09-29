@@ -47,7 +47,9 @@ Poses are fixed. Do not add, rename or remove poses without asking.
 
 Precedence: `alert` > `sleep_night` > `awake_sit` > `delivery` > `yarn` > `sleep_curled`.
 
-Theme: **the widget background is a quiet room, a plain wall and a wooden floor, with the cat sleeping on the floor in the default state.** No cards, gradients or extra icons. At most one short text line, hidden when the cat is asleep.
+Theme: **the scene is a quiet room, a plain wall and a wooden floor, with the cat sleeping on the floor in the default state.** No gradients. The layout reference is `docs/design/widget-reference.png`, but the rules below win over it (cat colours, pose, labels).
+- **Small widget:** scene + cat only, no cards/chips/icons. At most one short text line, hidden when the cat is asleep.
+- **Medium widget:** the scene in a rounded panel (left), plus a summary panel (right) with a headline, up to 3 rows (intent icon, app/sender, redacted snippet) and an "N → M important" footer. The summary panel is hidden when the cat is asleep. The pose always comes from `computePose`.
 
 Sprite rules:
 - 32×32, integer scaling only, `shape-rendering="crispEdges"`, transparent background.

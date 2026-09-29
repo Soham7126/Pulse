@@ -44,10 +44,10 @@ Legend: **P1** = Phase 1 (build), **P2** = Phase 2 (RevenueCat & monetization). 
 
 | ID | Feature | Phase | Status | Acceptance |
 |----|---------|-------|--------|-----------|
-| D1 | Small widget (2×2): floor scene + cat | P1 | ☐ | Cat on a plank floor, transparent-safe, light/dark palette |
-| D2 | Widget text line | P1 | ☐ | One pixel-styled line, hidden in `sleep_*` states |
+| D1 | Small widget (2×2): floor scene + cat | P1 | ☐ | Cat on a plank floor, no cards/chips, transparent-safe, light/dark palette |
+| D2 | Small widget text line | P1 | ☐ | One pixel-styled line, hidden in `sleep_*` states |
 | D3 | Event-driven pose swap | P1 | ☐ | Widget updates within ~5s of a state change |
-| D4 | Medium widget (4×2): cat + top 3 | P1 | ☐ | Shows top 3 by priority; tap opens the app |
+| D4 | Medium widget (4×2): scene panel + summary panel | P1 | ☐ | Matches `docs/design/widget-reference.png` layout: headline, top 3 rows by priority (intent icon, app/sender, redacted snippet), "N → M important" footer. Tap opens the app. Pose comes from the state engine. In `sleep_*` only the scene shows |
 | D5 | Scheduled refresh | P1 | ☐ | Periodic refresh so day/night and expiry changes apply without a new notification |
 | D6 | Native frame-flip idle loop | P1 (stretch) | ☐ | Only if a spike shows it's feasible via config plugin |
 | D7 | Widget modes: For You / Work / Shopping / People | P2 | ☐ | Mode setting changes the widget content |
