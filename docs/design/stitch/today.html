@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pulse — Today</title>
+<!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;family=Plus+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with Forms & Container Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config verbatism from Design System -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface": "#fbf8fc",
+            "secondary": "#8b4d46",
+            "inverse-primary": "#dfc2a0",
+            "inverse-surface": "#303033",
+            "on-primary-fixed-variant": "#57432a",
+            "surface-container-lowest": "#ffffff",
+            "surface-dim": "#dbd9dd",
+            "surface-container-high": "#eae7eb",
+            "surface-container-low": "#f5f3f6",
+            "on-error-container": "#93000a",
+            "on-error": "#ffffff",
+            "inverse-on-surface": "#f2f0f4",
+            "on-surface-variant": "#4e453d",
+            "tertiary-fixed": "#bceecb",
+            "outline-variant": "#d1c4b9",
+            "on-surface": "#1b1b1e",
+            "primary": "#705a3e",
+            "on-primary-fixed": "#281804",
+            "primary-fixed-dim": "#dfc2a0",
+            "surface-container-highest": "#e4e2e5",
+            "surface-bright": "#fbf8fc",
+            "on-tertiary-fixed-variant": "#224f36",
+            "on-tertiary-container": "#ffffff",
+            "background": "#fbf8fc",
+            "tertiary-fixed-dim": "#a1d2b0",
+            "tertiary-container": "#528063",
+            "surface-variant": "#e4e2e5",
+            "on-primary-container": "#ffffff",
+            "error": "#ba1a1a",
+            "on-secondary-fixed": "#380c09",
+            "surface-tint": "#715b3f",
+            "error-container": "#ffdad6",
+            "secondary-fixed-dim": "#ffb4aa",
+            "on-tertiary": "#ffffff",
+            "surface-container": "#f0edf1",
+            "on-secondary": "#ffffff",
+            "on-secondary-fixed-variant": "#6e3630",
+            "secondary-container": "#ffb0a6",
+            "on-tertiary-fixed": "#002110",
+            "primary-container": "#8a7255",
+            "on-background": "#1b1b1e",
+            "secondary-fixed": "#ffdad5",
+            "on-primary": "#ffffff",
+            "tertiary": "#39674b",
+            "outline": "#7f756b",
+            "primary-fixed": "#fcdebb",
+            "on-secondary-container": "#7a4039"
+          },
+          "borderRadius": {
+            "DEFAULT": "1rem",
+            "lg": "2rem",
+            "xl": "3rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-md": "0.875rem",
+            "gutter": "1rem",
+            "margin": "1.25rem",
+            "space-xs": "0.25rem",
+            "space-lg": "1.25rem",
+            "space-xl": "1.75rem",
+            "space-sm": "0.5rem"
+          },
+          "fontFamily": {
+            "label-sm": ["JetBrains Mono"],
+            "display-lg-mobile": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "display-lg": ["Plus Jakarta Sans"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "label-lg": ["JetBrains Mono"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "label-md": ["JetBrains Mono"]
+          },
+          "fontSize": {
+            "label-sm": ["10px", { "lineHeight": "12px", "letterSpacing": "0.04em", "fontWeight": "500" }],
+            "display-lg-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "label-lg": ["13px", { "lineHeight": "16px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+            "headline-md": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "label-md": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-outlined.fill-icon {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    /* Pixel rendering crispness for mascot */
+    .pixelated {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen selection:bg-primary-fixed selection:text-on-primary-fixed flex justify-center">
+<!-- Mobile Canvas Device Shell (Max width constraint as per Shared Components JSON max-w-md) -->
+<div class="w-full max-w-md bg-surface min-h-screen flex flex-col relative pb-28 shadow-xl">
+<!-- Android System Status Bar (Edge-to-edge Native Feel) -->
+<div class="w-full px-6 pt-3 pb-2 flex justify-between items-center text-on-surface-variant font-label-md text-label-md select-none">
+<span class="font-semibold tracking-tight text-on-surface">9:41</span>
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-[15px]">signal_cellular_alt</span>
+<span class="material-symbols-outlined text-[15px]">wifi</span>
+<span class="material-symbols-outlined text-[16px]">battery_full</span>
+</div>
+</div>
+<!-- TopAppBar (Anchored from Shared Components JSON) -->
+<!-- JSON: style_separation_logic: shadow-sm bg-surface, style_brand_logo, style_shell_layout -->
+<header class="bg-surface/90 dark:bg-inverse-surface/90 backdrop-blur-md shadow-sm dark:shadow-none bg-surface dark:bg-inverse-surface docked full-width top-0 sticky z-40">
+<div class="flex justify-between items-center w-full px-5 py-3 max-w-md mx-auto">
+<!-- Leading Icon & Brand Name Cluster -->
+<div class="flex items-center space-x-2.5">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">pets</span>
+</div>
+<div>
+<div class="flex items-baseline space-x-2">
+<span class="text-headline-sm font-headline-sm font-semibold text-on-surface dark:text-inverse-on-surface tracking-tight">Pulse</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Thursday, Oct 24</span>
+</div>
+</div>
+</div>
+<!-- Trailing Action: Ambient Mode & Settings -->
+<div class="flex items-center space-x-1">
+<button class="w-9 h-9 rounded-full flex items-center justify-center hover:bg-surface-container dark:hover:bg-inverse-surface/60 transition-colors duration-150 active:scale-95 text-on-surface-variant" title="Ambient Tune">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 px-5 pt-3 space-y-6">
+<!-- Ambient Mascot Companion Hero Section -->
+<section class="space-y-3">
+<!-- Greeting -->
+<div class="flex items-center justify-between">
+<div>
+<h1 class="font-display-lg-mobile text-display-lg-mobile text-on-surface font-bold tracking-tight">Good evening, Alex</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Atmosphere is settled · Focus window active</p>
+</div>
+</div>
+<!-- Mascot Stage Card: Ambient Companion Room -->
+<div class="relative bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/30 shadow-[0_4px_16px_-2px_rgba(90,75,60,0.05)] overflow-hidden">
+<div class="flex items-center justify-between">
+<!-- Left Info: Synthesis & State -->
+<div class="space-y-2 max-w-[210px]">
+<div class="inline-flex items-center space-x-1.5 bg-tertiary-fixed text-on-tertiary-fixed-variant px-2.5 py-1 rounded-full font-label-md text-label-md">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span>Calm state</span>
+</div>
+<div class="space-y-0.5">
+<div class="font-headline-sm text-headline-sm text-on-surface tracking-tight">31 notifications</div>
+<div class="font-body-sm text-body-sm text-primary font-medium flex items-center space-x-1">
+<span>→ 3 important curated</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed pt-1">
+                Batched 24 calm updates for tonight. Your queue is guarded.
+              </p>
+</div>
+<!-- Right Stage: Pixel Cat Awake Sit in Cosy Corner -->
+<div class="relative flex flex-col items-center justify-center">
+<div class="w-24 h-24 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-2 flex items-center justify-center shadow-inner relative group">
+<!-- Warm floor plank accentuation -->
+<div class="absolute inset-x-2 bottom-2 h-3 bg-surface-container-highest/60 rounded-sm"></div>
+<img alt="Cat Awake Sit" class="w-20 h-20 object-contain pixelated z-10 transition-transform duration-300 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida/AEtjO1U8hSJ87v0Bw3a-nhJDYh8aXgrsoctPOVhw4txwlGr4FHC_e-RHHewfUPEov2B9-5spgQSLYFL30K0U_P6cHF0Uj3bG6xJqF7TqulY0Qou8DkyU1A42RoLTXoCcRRoOxCZyEsU7JDf1ccKMpE23c3Fw1S3CQ_eZwa68H_0IgG859ttnmLE9W2Tain3ksna6OBT1hbSb1Oz6Kg56XPOlULSNKzI4PtXwHLwnvaGUHPGeeP2jwQTCE0Ui0UjD"/>
+</div>
+<span class="font-label-sm text-label-sm text-outline mt-1.5">Mochi is alert</span>
+</div>
+</div>
+</div>
+<!-- Quick Filter Tabs (Intent Segmenters) -->
+<div class="flex items-center space-x-2 pt-1">
+<button class="bg-inverse-surface text-surface font-label-md text-label-md px-4 py-1.5 rounded-full shadow-sm active:scale-95 transition-all">
+            Overview
+          </button>
+<button class="bg-surface-container-lowest text-on-surface-variant border border-outline-variant/40 font-label-md text-label-md px-3.5 py-1.5 rounded-full hover:bg-surface-container active:scale-95 transition-all flex items-center space-x-1.5">
+<span>Focus</span>
+<span class="bg-primary-fixed text-on-primary-fixed px-1.5 py-0.2 rounded-full font-label-sm text-label-sm">3</span>
+</button>
+<button class="bg-surface-container-lowest text-on-surface-variant border border-outline-variant/40 font-label-md text-label-md px-3.5 py-1.5 rounded-full hover:bg-surface-container active:scale-95 transition-all">
+            All Cleared
+          </button>
+</div>
+</section>
+<!-- Section 1: NEEDS YOUR ATTENTION -->
+<section class="space-y-3 pt-1">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<h2 class="font-label-md text-label-md text-on-surface-variant tracking-wider uppercase font-semibold">Needs Your Attention</h2>
+</div>
+<span class="font-label-sm text-label-sm text-secondary font-medium">2 Urgent</span>
+</div>
+<!-- Attention Card 1: WhatsApp Rahul -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 border-l-4 border-l-secondary border border-outline-variant/20 shadow-[0_4px_16px_-2px_rgba(90,75,60,0.05)] transition-all">
+<div class="flex items-start justify-between">
+<div class="flex items-center space-x-2.5">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center justify-center font-bold text-xs shadow-xs">
+<span class="material-symbols-outlined text-[18px]">chat</span>
+</div>
+<div>
+<div class="flex items-center space-x-1.5">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">Rahul</span>
+<span class="font-body-sm text-body-sm text-outline">· WhatsApp</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">22m ago</span>
+</div>
+</div>
+<!-- Intent Badge -->
+<span class="bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm px-2.5 py-0.5 rounded-full">
+              Requires response
+            </span>
+</div>
+<!-- Message Body -->
+<div class="mt-3 bg-surface-container-low/60 rounded-xl p-3 border border-outline-variant/15">
+<p class="font-body-md text-body-md text-on-surface italic">
+              “Can you send the DBMS project tonight?”
+            </p>
+<div class="mt-1.5 flex items-center space-x-1 font-label-sm text-label-sm text-secondary">
+<span class="material-symbols-outlined text-[14px]">priority_high</span>
+<span>Urgent assignment deadline</span>
+</div>
+</div>
+<!-- Quick Action Buttons -->
+<div class="mt-3 flex items-center space-x-2 pt-1">
+<button class="flex-1 bg-primary-container hover:bg-primary-container/90 text-on-primary-container font-body-md text-body-md font-medium py-2 px-3 rounded-full flex items-center justify-center space-x-1.5 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-[16px]">reply</span>
+<span>Reply</span>
+</button>
+<button class="bg-surface-variant hover:bg-surface-container-highest text-on-surface-variant font-body-md text-body-md py-2 px-4 rounded-full flex items-center justify-center space-x-1 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>Mark Handled</span>
+</button>
+</div>
+</div>
+<!-- Attention Card 2: LinkedIn Sarah Chen -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 border-l-4 border-l-primary border border-outline-variant/20 shadow-[0_4px_16px_-2px_rgba(90,75,60,0.05)] transition-all">
+<div class="flex items-start justify-between">
+<div class="flex items-center space-x-2.5">
+<div class="w-8 h-8 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-bold text-xs shadow-xs">
+<span class="material-symbols-outlined text-[18px]">work</span>
+</div>
+<div>
+<div class="flex items-center space-x-1.5">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">Sarah Chen</span>
+<span class="font-body-sm text-body-sm text-outline">· Stripe</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">1h ago</span>
+</div>
+</div>
+<!-- Intent Badge -->
+<span class="bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm px-2.5 py-0.5 rounded-full">
+              Opportunity · Actionable
+            </span>
+</div>
+<!-- Message Body -->
+<div class="mt-3 bg-surface-container-low/60 rounded-xl p-3 border border-outline-variant/15">
+<p class="font-body-md text-body-md text-on-surface">
+              “Are you available for a quick chat regarding the Staff Product Designer role?”
+            </p>
+</div>
+<!-- Quick Action Buttons -->
+<div class="mt-3 flex items-center space-x-2 pt-1">
+<button class="flex-1 bg-primary-container hover:bg-primary-container/90 text-on-primary-container font-body-md text-body-md font-medium py-2 px-3 rounded-full flex items-center justify-center space-x-1.5 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+<span>View offer</span>
+</button>
+<button class="bg-surface-variant hover:bg-surface-container-highest text-on-surface-variant font-body-md text-body-md py-2 px-4 rounded-full flex items-center justify-center space-x-1 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-[16px]">snooze</span>
+<span>Snooze</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Section 2: TODAY & UPCOMING -->
+<section class="space-y-3 pt-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-2">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<h2 class="font-label-md text-label-md text-on-surface-variant tracking-wider uppercase font-semibold">Today &amp; Upcoming</h2>
+</div>
+<span class="font-label-sm text-label-sm text-outline">2 Events</span>
+</div>
+<div class="grid grid-cols-1 gap-3">
+<!-- Card 3: Amazon Delivery Tracking -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/20 shadow-[0_2px_8px_-1px_rgba(90,75,60,0.04)] flex items-start space-x-3.5">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">local_shipping</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline">Amazon · Delivery Event</span>
+<span class="bg-surface-container text-on-surface-variant font-label-sm text-label-sm px-2 py-0.5 rounded-md">Arriving 6–8 PM</span>
+</div>
+<p class="font-headline-sm text-headline-sm font-semibold text-on-surface mt-1 truncate">
+                Driver is 4 stops away
+              </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                Package containing Studio Monitor Desk Mount.
+              </p>
+</div>
+</div>
+<!-- Card 4: Gmail & Google Calendar Sync -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/20 shadow-[0_2px_8px_-1px_rgba(90,75,60,0.04)] flex items-start space-x-3.5">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high text-tertiary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">event</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline">Google Calendar Sync</span>
+<span class="font-label-sm text-label-sm text-primary font-medium">4:00 PM (in 15m)</span>
+</div>
+<p class="font-headline-sm text-headline-sm font-semibold text-on-surface mt-1 truncate">
+                Pulse Design Sprint Debrief
+              </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                Google Meet link pre-attached · 30m duration
+              </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: LOW PRIORITY NOISE (Collapsible Batched Drawer) -->
+<section class="pt-2">
+<div class="bg-surface-container-low border border-outline-variant/25 rounded-2xl p-4 transition-all">
+<div class="flex items-center justify-between cursor-pointer" onclick="document.getElementById('collapsed-drawer').classList.toggle('hidden'); document.getElementById('drawer-chevron').classList.toggle('rotate-180')">
+<div class="flex items-center space-x-3">
+<div class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[16px]">visibility_off</span>
+</div>
+<div>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">24 notifications collapsed</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">5 Instagram likes, 9 emails, 10 app updates</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline transition-transform duration-200" id="drawer-chevron">expand_more</span>
+</div>
+<!-- Expandable Body Content -->
+<div class="hidden mt-3 pt-3 border-t border-outline-variant/20 space-y-2" id="collapsed-drawer">
+<div class="space-y-1.5">
+<div class="flex justify-between items-center py-1 font-body-sm text-body-sm text-on-surface-variant">
+<span>Instagram: Maya and 4 others liked your story</span>
+<span class="font-label-sm text-label-sm text-outline">3h ago</span>
+</div>
+<div class="flex justify-between items-center py-1 font-body-sm text-body-sm text-on-surface-variant">
+<span>Substack: "The Calmer Web" weekly edition</span>
+<span class="font-label-sm text-label-sm text-outline">4h ago</span>
+</div>
+<div class="flex justify-between items-center py-1 font-body-sm text-body-sm text-on-surface-variant">
+<span>GitHub: [Auto-merge] Dependabot security update</span>
+<span class="font-label-sm text-label-sm text-outline">5h ago</span>
+</div>
+</div>
+<div class="pt-2 flex items-center space-x-2">
+<button class="flex-1 bg-surface-container-lowest border border-outline-variant/40 hover:bg-surface text-on-surface font-body-sm text-body-sm py-2 px-3 rounded-full text-center active:scale-95 transition-all">
+                Review all quiet items
+              </button>
+<button class="bg-surface-variant text-on-surface-variant font-body-sm text-body-sm py-2 px-3 rounded-full active:scale-95 transition-all">
+                Keep collapsed
+              </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar (Faithfully mapped from Shared Components JSON) -->
+<!-- JSON: style_bg_color, style_separation_logic, style_shell_layout, style_active_navigation, style_inactive_navigation -->
+<nav class="bg-surface-container-lowest/95 dark:bg-inverse-surface/95 backdrop-blur-md shadow-[0_-4px_16px_-2px_rgba(90,75,60,0.06)] dark:shadow-none bg-surface-container-lowest dark:bg-inverse-surface fixed bottom-0 left-0 right-0 w-full z-50 flex justify-around items-center px-4 pt-2 pb-5 max-w-md mx-auto docked full-width bottom-0 rounded-t-2xl">
+<!-- Tab 1: Today (ACTIVE - Primary Screen Context) -->
+<!-- JSON style_active_navigation: "flex flex-col items-center justify-center bg-primary-fixed dark:bg-primary-container text-on-primary-fixed dark:text-on-primary-container rounded-full px-4 py-1.5 transition-all duration-200" -->
+<a class="flex flex-col items-center justify-center bg-primary-fixed dark:bg-primary-container text-on-primary-fixed dark:text-on-primary-container rounded-full px-4 py-1.5 transition-all duration-200 active:scale-95" href="#today">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">spa</span>
+<span class="text-label-sm font-label-sm font-semibold mt-0.5">Today</span>
+</a>
+<!-- Tab 2: Briefing -->
+<!-- JSON style_inactive_navigation: "flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-3 py-1.5 transition-all duration-200 hover:text-on-surface" -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-3 py-1.5 transition-all duration-200 hover:text-on-surface dark:hover:text-inverse-on-surface active:scale-95" href="#briefing">
+<span class="material-symbols-outlined text-[22px]">auto_read_pause</span>
+<span class="text-label-sm font-label-sm mt-0.5">Briefing</span>
+</a>
+<!-- Tab 3: Ask Pulse -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-3 py-1.5 transition-all duration-200 hover:text-on-surface dark:hover:text-inverse-on-surface active:scale-95" href="#ask-pulse">
+<span class="material-symbols-outlined text-[22px]">smart_toy</span>
+<span class="text-label-sm font-label-sm mt-0.5">Ask Pulse</span>
+</a>
+<!-- Tab 4: Apps -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-3 py-1.5 transition-all duration-200 hover:text-on-surface dark:hover:text-inverse-on-surface active:scale-95" href="#apps">
+<span class="material-symbols-outlined text-[22px]">dashboard_customize</span>
+<span class="text-label-sm font-label-sm mt-0.5">Apps</span>
+</a>
+</nav>
+</div>
+</body></html>
