@@ -46,3 +46,11 @@ const BLOCKED_NAME_PATTERN = /bank|upi|authenticator|password|passwd|vault/i;
 export function isHardBlocked(packageName: string): boolean {
   return HARD_BLOCKED_PACKAGES.has(packageName) || BLOCKED_NAME_PATTERN.test(packageName);
 }
+
+export type AppMode = 'allow' | 'deny' | 'blocked';
+
+// Product decision (2026-09-29): only PRD apps are captured by default; everything else starts off.
+export function defaultMode(packageName: string): AppMode {
+  if (isHardBlocked(packageName)) return 'blocked';
+  return packageName in APP_MAP ? 'allow' : 'deny';
+}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { APP_MAP, isHardBlocked } from '../src/capture/packages';
+import { APP_MAP, defaultMode, isHardBlocked } from '../src/capture/packages';
 import { FLAG_FOREGROUND_SERVICE, FLAG_GROUP_SUMMARY, FLAG_ONGOING_EVENT } from '../src/config/constants';
 import { dropReason } from '../src/ingest/filter';
 
@@ -55,6 +55,14 @@ describe('isHardBlocked', () => {
 
   it('does not block PRD apps', () => {
     for (const pkg of Object.keys(APP_MAP)) expect(isHardBlocked(pkg)).toBe(false);
+  });
+});
+
+describe('defaultMode', () => {
+  it('allows PRD apps, denies unknown apps, blocks sensitive apps', () => {
+    expect(defaultMode('com.whatsapp')).toBe('allow');
+    expect(defaultMode('com.antivirus')).toBe('deny');
+    expect(defaultMode('com.phonepe.app')).toBe('blocked');
   });
 });
 
