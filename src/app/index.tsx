@@ -17,7 +17,7 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <Text>Notification access: {granted ? 'granted' : 'not granted'}</Text>
-      <Button title="Open notification access settings" onPress={NotificationListener.openPermissionSettings} />
+      <Button title="Open notification access settings" onPress={() => NotificationListener.openPermissionSettings()} />
     </View>
   );
 }

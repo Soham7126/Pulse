@@ -29,6 +29,7 @@ Status: **code ready, awaiting first EAS build + on-device test.** Go/no-go is f
   - `isPermissionGranted()` reads `Settings.Secure enabled_notification_listeners` (the same thing NotificationManagerCompat does). `openPermissionSettings()` opens `ACTION_NOTIFICATION_LISTENER_SETTINGS`.
   - The manifest (listener service, headless service, WAKE_LOCK) lives in the module and is auto-merged.
 - Quirk: an Expo Modules `Function { }` lambda must return `Any?`. A bare `return@Function` (Unit) fails Kotlin compile, so use a safe call (`x?.foo()`) instead. Build 1 failed on this.
+- Quirk: Expo native functions check how many arguments they get when called. Passing one directly as a handler (`onPress={Mod.fn}`) forwards the press event and throws "Received 1 arguments, but 0 was expected". TypeScript doesn't catch it, so always wrap: `onPress={() => Mod.fn()}`.
 - Not yet handled (M1): `onNotificationRemoved`, ongoing/media filtering (flags are already passed), hard-block before the JS hop.
 
 ### To verify on device
