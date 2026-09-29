@@ -19,8 +19,7 @@ class NotificationListenerModule : Module() {
     }
 
     Function("openPermissionSettings") {
-      val context = appContext.reactContext ?: return@Function
-      context.startActivity(
+      appContext.reactContext?.startActivity(
         Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
       )
     }

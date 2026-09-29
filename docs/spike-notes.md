@@ -28,6 +28,7 @@ Status: **code ready, awaiting first EAS build + on-device test.** Go/no-go is f
   - Under New Arch, `HeadlessJsTaskService` uses `(application as ReactApplication).reactHost` and starts it if needed (checked in the RN 0.86 source).
   - `isPermissionGranted()` reads `Settings.Secure enabled_notification_listeners` (the same thing NotificationManagerCompat does). `openPermissionSettings()` opens `ACTION_NOTIFICATION_LISTENER_SETTINGS`.
   - The manifest (listener service, headless service, WAKE_LOCK) lives in the module and is auto-merged.
+- Quirk: an Expo Modules `Function { }` lambda must return `Any?`. A bare `return@Function` (Unit) fails Kotlin compile, so use a safe call (`x?.foo()`) instead. Build 1 failed on this.
 - Not yet handled (M1): `onNotificationRemoved`, ongoing/media filtering (flags are already passed), hard-block before the JS hop.
 
 ### To verify on device
