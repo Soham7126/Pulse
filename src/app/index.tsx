@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AppState, Button, StyleSheet, Text, View } from 'react-native';
+import { requestPinWidget } from 'react-native-android-widget';
 
 import { NotificationListener } from '../../modules/notification-listener';
 
@@ -18,6 +19,7 @@ export default function Index() {
     <View style={styles.container}>
       <Text>Notification access: {granted ? 'granted' : 'not granted'}</Text>
       <Button title="Open notification access settings" onPress={() => NotificationListener.openPermissionSettings()} />
+      <Button title="Add widget to home screen" onPress={() => requestPinWidget({ widgetName: 'Hello' })} />
     </View>
   );
 }
