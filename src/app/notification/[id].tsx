@@ -4,9 +4,11 @@ import { Alert, Pressable, ScrollView, Share, StyleSheet, TextInput, ToastAndroi
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { NotificationListener } from '../../../modules/notification-listener';
-import { aiConfigured, aiEnabled, aiErrorMessage, callProxy } from '../../ai/client';
+import { aiActive, aiConfigured, aiErrorMessage, callProxy } from '../../ai/client';
 import { MAX_HISTORY, isDraftResponse, type DraftResponse } from '../../ai/contract';
 import { localStamp, toAiItem } from '../../ai/payload';
+import { unlockPulseAi } from '../../ai/unlock';
+import { isPro } from '../../entitlements';
 import { getDb } from '../../db/db';
 import { getCapture, listThread, setHandled, type CaptureRow } from '../../db/queries';
 import { shortTime } from '../../time/format';
@@ -32,14 +34,14 @@ export default function NotificationDetail() {
   const row = getCapture(db, Number(id));
   const thread = row ? listThread(db, row, MAX_HISTORY) : [];
 
-  const [ai, setAi] = useState<Ai>({ state: aiEnabled() && aiConfigured() ? 'loading' : 'off' });
+  const [ai, setAi] = useState<Ai>({ state: aiActive() && aiConfigured() ? 'loading' : 'off' });
   const [variant, setVariant] = useState(0);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
 
   const interpret = useCallback(
     async (v: number) => {
-      if (!row || !aiEnabled() || !aiConfigured()) return setAi({ state: 'off' });
+      if (!row || !aiActive() || !aiConfigured()) return setAi({ state: 'off' });
       setAi({ state: 'loading' });
       try {
         const data = await callProxy(
@@ -214,9 +216,14 @@ export default function NotificationDetail() {
           {ai.state === 'off' ? (
             <View style={{ gap: 10 }}>
               <T variant="bodySm" color={COLORS.onSurfaceVariant}>
-                Turn on Pulse AI to get an interpretation and a suggested reply for this message.
+                Pulse AI reads this message, tells you how urgent it is and drafts a reply you can send.
               </T>
-              <ActionButton label="Open Ask Pulse" icon="smart-toy" compact onPress={() => router.push('/ask')} />
+              <ActionButton
+                label={isPro() ? 'Turn on Pulse AI' : 'Unlock Pulse AI'}
+                icon="auto-awesome"
+                primary
+                onPress={() => void unlockPulseAi().then((ok) => (ok ? interpret(0) : undefined))}
+              />
             </View>
           ) : ai.state === 'loading' ? (
             <View style={[ui.row, { gap: 12 }]}>

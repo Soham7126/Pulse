@@ -3,9 +3,10 @@ import { useRef, useState } from 'react';
 import { KeyboardAvoidingView, Pressable, ScrollView, Share, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { aiConfigured, aiEnabled, aiErrorMessage, callProxy } from '../../ai/client';
+import { aiActive, aiConfigured, aiErrorMessage, callProxy } from '../../ai/client';
 import { MAX_ASK_ITEMS, MAX_QUESTION, isAskResponse, type AskResponse } from '../../ai/contract';
 import { localStamp, toAiItem } from '../../ai/payload';
+import { unlockPulseAi } from '../../ai/unlock';
 import { MEMORY_DAYS } from '../../config/constants';
 import type { CaptureRow } from '../../db/queries';
 import { shortTime } from '../../time/format';
@@ -50,6 +51,11 @@ export default function Ask() {
   const ask = async (text: string) => {
     const q = text.trim().slice(0, MAX_QUESTION);
     if (!q) return;
+    // Free users: paywall first (the question is kept and answered right after the purchase).
+    if (!aiActive() && !(await unlockPulseAi())) {
+      setQuestion(q);
+      return;
+    }
     const id = Date.now();
     setQuestion('');
     setTurns((t) => [...t, { id, question: q, askedAt: id, state: 'loading' }]);
@@ -71,8 +77,8 @@ export default function Ask() {
     requestAnimationFrame(() => scroll.current?.scrollToEnd({ animated: true }));
   };
 
-  // Read every render (the tick re-renders each second), so switching Pulse AI in Apps applies immediately.
-  const canAsk = aiEnabled() && aiConfigured();
+  // Read every render (the tick re-renders each second), so unlocking or switching Pulse AI applies immediately.
+  const canAsk = aiActive() && aiConfigured();
 
   return (
     <SafeAreaView style={s.screen} edges={['top']}>
@@ -139,7 +145,7 @@ export default function Ask() {
               {SUGGESTIONS.map((q) => (
                 <Pressable
                   key={q.text}
-                  onPress={() => (canAsk ? ask(q.text) : setQuestion(q.text))}
+                  onPress={() => void ask(q.text)}
                   style={({ pressed }) => [s.suggestion, SHADOW.cardSm, { transform: [{ scale: pressed ? 0.95 : 1 }] }]}
                 >
                   <Icon name={q.icon} size={14} color={q.tint} />
@@ -178,17 +184,17 @@ export default function Ask() {
           <TextInput
             value={question}
             onChangeText={setQuestion}
-            placeholder={canAsk ? 'Ask about any notification, person or app' : 'Turn on Pulse AI in Apps to ask'}
+            placeholder="Ask about any notification, person or app"
             placeholderTextColor={COLORS.outline}
             style={s.input}
             returnKeyType="send"
-            editable={canAsk}
+            editable={aiConfigured()}
             maxLength={MAX_QUESTION}
             onSubmitEditing={() => ask(question)}
           />
           <Pressable
-            style={[s.send, ui.center, { opacity: canAsk && question.trim() ? 1 : 0.5 }]}
-            disabled={!canAsk || !question.trim()}
+            style={[s.send, ui.center, { opacity: question.trim() ? 1 : 0.5 }]}
+            disabled={!aiConfigured() || !question.trim()}
             onPress={() => ask(question)}
           >
             <Icon name="arrow-upward" size={20} color={COLORS.onPrimaryContainer} />

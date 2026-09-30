@@ -13,6 +13,7 @@ import { AppState } from 'react-native';
 
 import { classifyPending } from '../ai/classify';
 import { LAST_SEEN_KEY } from '../config/constants';
+import { configurePurchases } from '../entitlements/revenuecat';
 import { getDb } from '../db/db';
 import { setSetting } from '../db/queries';
 import { COLORS } from '../ui/theme';
@@ -29,6 +30,7 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
+    configurePurchases();
     // Push fresh widget data on every open (a newly placed widget has none yet), and again after any classification.
     const catchUp = () => {
       refreshWidgets();

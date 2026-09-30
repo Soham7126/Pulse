@@ -2,7 +2,7 @@ import { MEMORY_DAYS } from '../config/constants';
 import { getDb } from '../db/db';
 import { listPendingClassification, saveClassification } from '../db/queries';
 import { deviceZone } from '../time/format';
-import { aiConfigured, aiEnabled, callProxy } from './client';
+import { aiActive, aiConfigured, callProxy } from './client';
 import { MAX_CLASSIFY_BATCH, isClassifyResponse } from './contract';
 import { toAiItem } from './payload';
 
@@ -15,7 +15,7 @@ let running: Promise<number> | null = null;
  * One run at a time: the headless task and the app can both trigger it.
  */
 export function classifyPending(): Promise<number> {
-  if (!aiEnabled() || !aiConfigured()) return Promise.resolve(0);
+  if (!aiActive() || !aiConfigured()) return Promise.resolve(0);
   running ??= run().finally(() => {
     running = null;
   });

@@ -4,30 +4,35 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { NotificationListener } from '../../../modules/notification-listener';
 import { PulseWidget } from '../../../modules/pulse-widget';
-import { classifyPending } from '../../ai/classify';
-import { aiConfigured, aiEnabled, setAiEnabled } from '../../ai/client';
+import { aiActive, aiConfigured, setAiEnabled } from '../../ai/client';
+import { unlockPulseAi } from '../../ai/unlock';
 import { getDb } from '../../db/db';
 import { listAppRules, setAppMode } from '../../db/queries';
+import { isPro } from '../../entitlements';
+import { purchasesConfigured, resetToFreeForDemo, restorePro } from '../../entitlements/revenuecat';
 import { ActionButton, Card, Icon, Pill, appTint, styles as ui } from '../../ui/components';
 import { T } from '../../ui/text';
 import { COLORS, SHADOW, alpha } from '../../ui/theme';
-import { refreshWidgets } from '../../widget/update';
+import { useNow } from '../../ui/use-live';
 
 export default function Apps() {
   const [rules, setRules] = useState(() => listAppRules(getDb()));
 
-  const [aiOn, setAiOn] = useState(aiEnabled);
+  // Re-render each second so the Pro badge and switch follow RevenueCat's async entitlement updates.
+  useNow();
+  const pro = isPro();
+  const [busy, setBusy] = useState(false);
 
   const toggle = (packageName: string, on: boolean) => {
     setAppMode(getDb(), packageName, on ? 'allow' : 'deny');
     setRules(listAppRules(getDb()));
   };
 
-  const toggleAi = (on: boolean) => {
-    setAiEnabled(on);
-    setAiOn(on);
-    // Turning AI on classifies everything captured while it was off.
-    if (on) void classifyPending().then((n) => (n > 0 ? refreshWidgets() : undefined));
+  const toggleAi = async (on: boolean) => {
+    if (!on) return setAiEnabled(false);
+    setBusy(true);
+    await unlockPulseAi(); // Free users see the paywall first.
+    setBusy(false);
   };
 
   return (
@@ -78,17 +83,36 @@ export default function Apps() {
               <View style={[s.appIcon, ui.center, { backgroundColor: COLORS.primaryFixed }]}>
                 <Icon name="auto-awesome" size={20} color={COLORS.onPrimaryFixed} />
               </View>
-              <T variant="bodyMd" weight="semibold" style={{ flex: 1 }}>
-                Pulse AI
-              </T>
+              <View style={[ui.row, { gap: 8, flex: 1 }]}>
+                <T variant="bodyMd" weight="semibold">
+                  Pulse AI
+                </T>
+                {pro ? null : <Pill text="PRO" bg={COLORS.primaryFixed} fg={COLORS.onPrimaryFixed} />}
+              </View>
               <Switch
-                value={aiOn}
-                onValueChange={toggleAi}
-                disabled={!aiConfigured()}
+                value={aiActive()}
+                onValueChange={(on) => void toggleAi(on)}
+                disabled={!aiConfigured() || busy}
                 trackColor={{ false: '#ECE7DE', true: COLORS.primaryContainer }}
                 thumbColor={COLORS.parchment}
               />
             </Card>
+            {purchasesConfigured() ? (
+              <View style={[ui.row, { justifyContent: 'space-between', paddingHorizontal: 4, marginTop: -6 }]}>
+                <Pressable hitSlop={8} onPress={() => void restorePro()}>
+                  <T variant="labelMd" color={COLORS.primary}>
+                    Restore purchases
+                  </T>
+                </Pressable>
+                {__DEV__ && pro ? (
+                  <Pressable hitSlop={8} onPress={() => void resetToFreeForDemo()}>
+                    <T variant="labelMd" color={COLORS.outline}>
+                      Reset to free (demo)
+                    </T>
+                  </Pressable>
+                ) : null}
+              </View>
+            ) : null}
             <T variant="labelMd" weight="semibold" color={COLORS.onSurfaceVariant} upper style={{ letterSpacing: 1.2, paddingHorizontal: 4 }}>
               Apps that have notified you
             </T>
