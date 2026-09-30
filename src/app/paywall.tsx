@@ -91,7 +91,7 @@ export default function Paywall() {
             <T variant="bodyMd" weight="semibold" style={s.label}>
               Features
             </T>
-            <T variant="labelMd" weight="semibold" color={COLORS.onSurfaceVariant} style={s.col}>
+            <T variant="labelMd" weight="semibold" color={COLORS.onSurfaceVariant} style={[s.col, { textAlign: 'center' }]}>
               FREE
             </T>
             <View style={s.col}>
