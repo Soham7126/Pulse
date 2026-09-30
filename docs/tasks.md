@@ -129,7 +129,7 @@ Work milestone by milestone. Do not start a milestone until the previous one's *
 - [ ] Empty/error/permission-revoked states with the cat
 - [ ] Performance check (ingest under load: 100 notifications in a minute)
 - [ ] Reboot and battery-saver testing on the real phone
-- [ ] README with build/run instructions (EAS commands)
+- [x] README with build/run instructions (EAS commands)
 - [ ] Release APK build (`preview`/`production` profile)
 - [ ] Record demo video
 - [ ] Phase 1 retro; confirm the entitlements seam is the only P2 prep in code
