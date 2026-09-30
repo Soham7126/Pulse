@@ -89,3 +89,11 @@ Reply: `NotificationListener.reply(key, text)` fires the source notification's i
 - **Now:** a local module `modules/pulse-widget` with two AppWidgetProviders and XML layouts (real TextViews, bundled Plus Jakarta Sans / JetBrains Mono in `res/font`). The cat room is drawn per frame by `SceneRenderer` with nearest-neighbour pixels and played by a `ViewFlipper` (5 fps awake, 2 fps asleep). Row count follows `OPTION_APPWIDGET_MIN_HEIGHT` (≥170 dp: 3, ≥135 dp: 2, otherwise 1); the providers log min/max heights to calibrate.
 - Taps: a row deep-links to `pulse://notification/<id>`; everything else opens the app.
 - **User-visible:** the old widgets (PulseSmall/PulseMedium from the library) disappear with this build; add the new ones again.
+
+## RevenueCat (Phase 2, 2026-09-30)
+
+- SDK: react-native-purchases / -ui 10.10.2 (Test Store needs ≥ 9.5.4). No config plugin; needs a dev build.
+- Dashboard (user): Test Store, product `pro_monthly` ($5/mo), entitlement `pro`, `default` offering with a monthly package, RevenueCat Paywall attached.
+- Key: public SDK key in `.env.local` (gitignored) as `EXPO_PUBLIC_REVENUECAT_API_KEY`. **Test Store keys (`test_…`) are dev-only: the SDK crashes in production with one.** Swap in the Google Play public key (and connect Play Console) before any release build.
+- The headless task can't call the SDK, so `pro` is cached in SQLite (`pro_active`) by the app's CustomerInfo listener and read via `canUse()`.
+- Not done yet: server-side enforcement (H7, RevenueCat webhook → proxy). The proxy currently trusts the app.
