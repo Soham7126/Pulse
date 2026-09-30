@@ -20,6 +20,7 @@ export const REDACTION_MASK = '••••';
 export const LAST_SEEN_KEY = 'last_seen_utc';
 export const AI_ENABLED_KEY = 'ai_enabled';
 export const INSTALL_ID_KEY = 'install_id';
+export const PRO_ACTIVE_KEY = 'pro_active';
 
 // PRD §8 defaults; user-editable settings arrive in M3.
 export const DEFAULT_SLEEP_START = '23:00';
