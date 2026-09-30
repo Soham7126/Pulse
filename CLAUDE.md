@@ -56,7 +56,7 @@ Sprite rules:
 - Sprites are **text grids** in `assets/sprites/`, one char per palette color, `.` transparent.
 - Skins are **palette swaps**; only the default palette ships in Phase 1.
 - Do not use the watermarked stock cat image. Redraw an original character.
-- The widget can't animate continuously: use event-driven pose swaps. Idle loops are in-app only.
+- The widget's idle loop runs natively: `modules/pulse-widget` draws each frame as a pixel bitmap and a `ViewFlipper` plays them (decision 2026-09-30). JS only pushes a snapshot when data changes; pose swaps stay event-driven.
 
 ## Code style
 

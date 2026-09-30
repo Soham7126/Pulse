@@ -82,3 +82,10 @@ Contract: `src/ai/contract.ts` is shared by the app and the Worker. It validates
 Proxy abuse limits: per-install and per-IP, 120 requests / 10 min per isolate (in-memory; move to KV if abused), 64 KB body cap, no logging of bodies. Also set a monthly spend limit on the OpenAI project. Phase 2's RevenueCat webhook is the real gate.
 
 Reply: `NotificationListener.reply(key, text)` fires the source notification's inline-reply `RemoteInput` action (like replying from the shade). It only works while that notification is still showing; otherwise the UI offers "Share draft".
+
+## Widget rewrite: native, continuously animated (2026-09-30)
+
+- **Problem with react-native-android-widget:** it renders the whole widget as one bitmap sized by the launcher's portrait `OPTION_APPWIDGET_MAX_HEIGHT`, and shows it with `scaleType="matrix"` (no scaling). The Realme launcher reports 175 dp while the real slot is 146 dp (measured: bitmap 756×525 px at 480 dpi vs 756×438 px on screen), so the bottom was cropped. It also can't animate.
+- **Now:** a local module `modules/pulse-widget` with two AppWidgetProviders and XML layouts (real TextViews, bundled Plus Jakarta Sans / JetBrains Mono in `res/font`). The cat room is drawn per frame by `SceneRenderer` with nearest-neighbour pixels and played by a `ViewFlipper` (5 fps awake, 2 fps asleep). Row count follows `OPTION_APPWIDGET_MIN_HEIGHT` (≥170 dp: 3, ≥135 dp: 2, otherwise 1); the providers log min/max heights to calibrate.
+- Taps: a row deep-links to `pulse://notification/<id>`; everything else opens the app.
+- **User-visible:** the old widgets (PulseSmall/PulseMedium from the library) disappear with this build; add the new ones again.

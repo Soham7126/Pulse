@@ -189,7 +189,7 @@ The engine is deterministic and has no I/O, which makes it ideal for unit tests 
   2. periodic refresh (system minimum interval; used for day/night and expiry),
   3. app foreground,
   4. tz change.
-- **Animation reality:** the widget cannot run continuous JS animation. Phase 1 uses pose swaps on events. Idle loops (blink/tail) are in-app only. A native frame-flip idle loop is a stretch spike (D6); do not block on it.
+- **Animation:** widgets can't run JS continuously. `modules/pulse-widget` (native AppWidgetProviders) draws each sprite frame to a pixel-exact bitmap and plays the idle loop in a `ViewFlipper`, so the cat keeps moving on the home screen with no JS running. JS pushes a display-only snapshot (`src/widget/payload.ts`) when data changes. The widget redraws from its saved snapshot after a reboot. (Replaced react-native-android-widget, which rendered one static bitmap at the launcher's MAX height and got cropped on Realme.)
 - **Widget data contract:** the widget reads a small precomputed JSON snapshot (`pose`, `counts`, `topItems[3]`, `palette`, `generatedAtUtc`), never the full DB.
 
 ## 9. Sprite system
