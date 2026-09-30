@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="pulse_widget_small_label">Pulse</string>
+  <string name="pulse_widget_small_description">The cat in its room</string>
+  <string name="pulse_widget_medium_label">Pulse (wide)</string>
+  <string name="pulse_widget_medium_description">The cat plus what needs you</string>
+</resources>

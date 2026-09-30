@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/pulse_root"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@drawable/pulse_widget_bg"
+  android:clipToOutline="true"
+  android:orientation="vertical"
+  android:padding="8dp">
+
+  <FrameLayout
+    android:id="@+id/pulse_scene"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1"
+    android:background="@drawable/pulse_scene_bg"
+    android:clipToOutline="true">
+
+    <ViewFlipper
+      android:id="@+id/pulse_flipper"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:autoStart="true"
+      android:flipInterval="200" />
+  </FrameLayout>
+
+  <TextView
+    android:id="@+id/pulse_line"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="6dp"
+    android:background="@drawable/pulse_row_bg"
+    android:ellipsize="end"
+    android:fontFamily="@font/pulse_mono"
+    android:maxLines="1"
+    android:paddingHorizontal="10dp"
+    android:paddingVertical="6dp"
+    android:textColor="#1B1B1E"
+    android:textSize="12sp"
+    android:visibility="gone" />
+</LinearLayout>

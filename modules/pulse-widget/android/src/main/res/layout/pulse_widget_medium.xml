@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Wide widget: room panel left, summary right. When the cat sleeps the summary is GONE and the room fills the widget. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/pulse_root"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@drawable/pulse_widget_bg"
+  android:clipToOutline="true"
+  android:orientation="horizontal"
+  android:padding="12dp">
+
+  <FrameLayout
+    android:id="@+id/pulse_scene"
+    android:layout_width="0dp"
+    android:layout_height="match_parent"
+    android:layout_weight="38"
+    android:background="@drawable/pulse_scene_bg"
+    android:clipToOutline="true">
+
+    <ViewFlipper
+      android:id="@+id/pulse_flipper"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:autoStart="true"
+      android:flipInterval="200" />
+  </FrameLayout>
+
+  <LinearLayout
+    android:id="@+id/pulse_summary"
+    android:layout_width="0dp"
+    android:layout_height="match_parent"
+    android:layout_marginStart="12dp"
+    android:layout_weight="62"
+    android:orientation="vertical">
+
+    <LinearLayout
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:gravity="center_vertical"
+      android:orientation="horizontal">
+
+      <View
+        android:layout_width="7dp"
+        android:layout_height="7dp"
+        android:background="@drawable/pulse_dot" />
+
+      <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:fontFamily="@font/pulse_mono"
+        android:letterSpacing="0.1"
+        android:text="PULSE"
+        android:textColor="#705A3E"
+        android:textSize="10sp" />
+    </LinearLayout>
+
+    <TextView
+      android:id="@+id/pulse_headline"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="2dp"
+      android:ellipsize="end"
+      android:fontFamily="@font/pulse_sans_bold"
+      android:maxLines="1"
+      android:textColor="#1B1B1E"
+      android:textSize="16sp" />
+
+    <LinearLayout
+      android:id="@+id/pulse_row1"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="4dp"
+      android:background="@drawable/pulse_row_bg"
+      android:gravity="center_vertical"
+      android:orientation="horizontal"
+      android:paddingHorizontal="10dp"
+      android:paddingVertical="4dp"
+      android:visibility="gone">
+
+      <TextView
+        android:id="@+id/pulse_row1_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="12sp" />
+
+      <TextView
+        android:id="@+id/pulse_row1_who"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:ellipsize="end"
+        android:fontFamily="@font/pulse_sans_semibold"
+        android:maxLines="1"
+        android:maxWidth="96dp"
+        android:textColor="#1B1B1E"
+        android:textSize="12sp" />
+
+      <TextView
+        android:id="@+id/pulse_row1_what"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:fontFamily="@font/pulse_sans_regular"
+        android:maxLines="1"
+        android:textColor="#4E453D"
+        android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+      android:id="@+id/pulse_row2"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="4dp"
+      android:background="@drawable/pulse_row_bg"
+      android:gravity="center_vertical"
+      android:orientation="horizontal"
+      android:paddingHorizontal="10dp"
+      android:paddingVertical="4dp"
+      android:visibility="gone">
+
+      <TextView
+        android:id="@+id/pulse_row2_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="12sp" />
+
+      <TextView
+        android:id="@+id/pulse_row2_who"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:ellipsize="end"
+        android:fontFamily="@font/pulse_sans_semibold"
+        android:maxLines="1"
+        android:maxWidth="96dp"
+        android:textColor="#1B1B1E"
+        android:textSize="12sp" />
+
+      <TextView
+        android:id="@+id/pulse_row2_what"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:fontFamily="@font/pulse_sans_regular"
+        android:maxLines="1"
+        android:textColor="#4E453D"
+        android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+      android:id="@+id/pulse_row3"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="4dp"
+      android:background="@drawable/pulse_row_bg"
+      android:gravity="center_vertical"
+      android:orientation="horizontal"
+      android:paddingHorizontal="10dp"
+      android:paddingVertical="4dp"
+      android:visibility="gone">
+
+      <TextView
+        android:id="@+id/pulse_row3_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="12sp" />
+
+      <TextView
+        android:id="@+id/pulse_row3_who"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:ellipsize="end"
+        android:fontFamily="@font/pulse_sans_semibold"
+        android:maxLines="1"
+        android:maxWidth="96dp"
+        android:textColor="#1B1B1E"
+        android:textSize="12sp" />
+
+      <TextView
+        android:id="@+id/pulse_row3_what"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:fontFamily="@font/pulse_sans_regular"
+        android:maxLines="1"
+        android:textColor="#4E453D"
+        android:textSize="12sp" />
+    </LinearLayout>
+
+    <View
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_weight="1" />
+
+    <View
+      android:layout_width="match_parent"
+      android:layout_height="1dp"
+      android:background="#E8DFD3" />
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="4dp"
+      android:gravity="center_vertical"
+      android:orientation="horizontal">
+
+      <TextView
+        android:id="@+id/pulse_footer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:fontFamily="@font/pulse_mono"
+        android:maxLines="1"
+        android:textColor="#4E453D"
+        android:textSize="10sp" />
+
+      <TextView
+        android:id="@+id/pulse_arrow"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="6dp"
+        android:background="@drawable/pulse_arrow_bg"
+        android:contentDescription="Open Pulse"
+        android:fontFamily="@font/pulse_sans_bold"
+        android:gravity="center"
+        android:text="→"
+        android:textColor="#281804"
+        android:textSize="13sp" />
+    </LinearLayout>
+  </LinearLayout>
+</LinearLayout>
