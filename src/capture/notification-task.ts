@@ -27,6 +27,6 @@ export async function onNotification(n: RawNotification): Promise<void> {
   });
   console.log(`[pulse] ${isNew ? 'new' : 'update'} ${meta}`);
   // Show it immediately (source-app fallback), then again once GPT-4o has classified it.
-  await refreshWidgets(isNew);
-  if ((await classifyPending()) > 0) await refreshWidgets(false);
+  refreshWidgets();
+  if ((await classifyPending()) > 0) refreshWidgets();
 }

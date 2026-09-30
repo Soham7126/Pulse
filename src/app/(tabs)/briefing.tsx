@@ -246,7 +246,7 @@ export default function Briefing() {
               onPress={() => {
                 const db = getDb();
                 for (const r of quiet) setHandled(db, r.id, true, Date.now());
-                void refreshWidgets(false);
+                void refreshWidgets();
               }}
               style={{ paddingVertical: 14 }}
             />

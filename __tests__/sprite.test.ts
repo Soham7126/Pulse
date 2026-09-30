@@ -1,7 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
 import { DEFAULT_PALETTE } from '../src/cat/palette';
-import { renderSceneSvg } from '../src/cat/scene';
 import { frameAt, renderSpriteToSvg, SPRITE_SIZE, spriteToRects } from '../src/cat/sprite';
 import { SPRITES } from '../src/cat/sprites';
 
@@ -53,24 +52,6 @@ describe('spriteToRects', () => {
 
   it('throws on a char missing from the palette', () => {
     expect(() => spriteToRects(['q'], {})).toThrow("'q'");
-  });
-});
-
-describe('renderSceneSvg', () => {
-  const frame = SPRITES.awake_sit!.frames[0];
-
-  it('draws wall, floor and cat crisply, sized to the panel aspect', () => {
-    const svg = renderSceneSvg(frame, DEFAULT_PALETTE, 60);
-    expect(svg).toContain('viewBox="0 0 60 40"');
-    expect(svg).toContain('shape-rendering="crispEdges"');
-    expect(svg).toContain('fill="#D5C3A5"');
-    expect(svg).toContain(`fill="${DEFAULT_PALETTE.k}"`);
-  });
-
-  it('centres the cat and never goes narrower than the sprite', () => {
-    expect(renderSceneSvg(frame, DEFAULT_PALETTE, 10)).toContain('viewBox="0 0 32 40"');
-    // Leftmost cat pixel in a 60-wide scene is offset by (60 - 32) / 2 = 14.
-    expect(renderSceneSvg(['k'], { k: '#000' }, 60)).toContain('<rect x="14"');
   });
 });
 

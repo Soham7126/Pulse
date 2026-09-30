@@ -300,7 +300,7 @@ function AttentionCard({ row, now, zone }: { row: CaptureRow; now: number; zone:
           icon={handled ? 'undo' : 'check-circle'}
           onPress={() => {
             setHandled(getDb(), row.id, !handled, Date.now());
-            void refreshWidgets(false);
+            void refreshWidgets();
           }}
         />
       </View>

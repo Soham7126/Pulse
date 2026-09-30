@@ -29,7 +29,7 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    const catchUp = () => void classifyPending().then((n) => (n > 0 ? refreshWidgets(false) : undefined));
+    const catchUp = () => void classifyPending().then((n) => (n > 0 ? refreshWidgets() : undefined));
     catchUp();
     const sub = AppState.addEventListener('change', (state) => {
       // "While you were away" = everything since the app last went to the background.

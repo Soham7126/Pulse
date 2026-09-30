@@ -76,7 +76,7 @@ export default function NotificationDetail() {
 
   const markHandled = (value: boolean) => {
     setHandled(getDb(), row.id, value, Date.now());
-    void refreshWidgets(false);
+    void refreshWidgets();
   };
 
   const reply = async () => {
