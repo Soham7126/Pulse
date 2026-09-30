@@ -23,6 +23,9 @@ class PulseNotificationListenerService : NotificationListenerService() {
   override fun onNotificationPosted(sbn: StatusBarNotification) {
     if (sbn.packageName == packageName) return
     val notification = sbn.notification
+    // Same drops as src/ingest/filter.ts (ongoing, foreground service, group summary), done here so status
+    // notifications that update every few seconds (e.g. an antivirus shield) never wake the JS engine.
+    if (notification.flags and SKIP_FLAGS != 0) return
     val extras = notification.extras
     // Title/text only travel to the JS task, which filters and redacts before anything is stored.
     val data = Bundle().apply {
@@ -74,6 +77,8 @@ class PulseNotificationListenerService : NotificationListenerService() {
 
   companion object {
     private const val TAG = "PulseListener"
+    private const val SKIP_FLAGS =
+      Notification.FLAG_ONGOING_EVENT or Notification.FLAG_FOREGROUND_SERVICE or Notification.FLAG_GROUP_SUMMARY
 
     // Set while the system has the listener bound; used by the module to reach active notifications.
     @Volatile
