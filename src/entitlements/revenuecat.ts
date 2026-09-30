@@ -57,11 +57,13 @@ export async function restorePro(): Promise<boolean> {
 }
 
 /**
- * Demo only (dev builds): switch to a fresh anonymous RevenueCat user so the free → paywall → purchase flow
- * can be recorded again. Test Store purchases belong to the old user and stay there.
+ * Demo only (dev builds): become a brand-new anonymous RevenueCat user with no purchases, so the
+ * free → paywall → purchase flow can be recorded again. Logging *in* would carry the anonymous user's
+ * purchases over (RevenueCat merges them), and logOut() refuses while anonymous, so: park the current
+ * purchases on a throwaway demo user, then log out to a fresh anonymous one. Resolves the new Pro state.
  */
-export async function resetToFreeForDemo(): Promise<void> {
-  if (!configured || !__DEV__) return;
-  const { customerInfo } = await Purchases.logIn(`pulse-demo-${Date.now().toString(36)}`);
-  cache(customerInfo);
+export async function resetToFreeForDemo(): Promise<boolean> {
+  if (!configured || !__DEV__) return false;
+  if (await Purchases.isAnonymous()) await Purchases.logIn(`pulse-demo-${Date.now().toString(36)}`);
+  return cache(await Purchases.logOut());
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Switch, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Switch, ToastAndroid, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { NotificationListener } from '../../../modules/notification-listener';
@@ -26,6 +26,19 @@ export default function Apps() {
   const toggle = (packageName: string, on: boolean) => {
     setAppMode(getDb(), packageName, on ? 'allow' : 'deny');
     setRules(listAppRules(getDb()));
+  };
+
+  // Demo reset: fresh free RevenueCat user and Pulse AI off, so the paywall flow can be recorded again.
+  const resetDemo = async () => {
+    setBusy(true);
+    try {
+      const stillPro = await resetToFreeForDemo();
+      setAiEnabled(false);
+      ToastAndroid.show(stillPro ? 'Still Pro: reset did not take' : 'Reset to a free user', ToastAndroid.SHORT);
+    } catch {
+      ToastAndroid.show('Reset failed. Check your connection.', ToastAndroid.SHORT);
+    }
+    setBusy(false);
   };
 
   const toggleAi = async (on: boolean) => {
@@ -109,7 +122,7 @@ export default function Apps() {
                   </T>
                 </Pressable>
                 {__DEV__ && pro ? (
-                  <Pressable hitSlop={8} onPress={() => void resetToFreeForDemo()}>
+                  <Pressable hitSlop={8} onPress={() => void resetDemo()}>
                     <T variant="labelMd" color={COLORS.outline}>
                       Reset to free (demo)
                     </T>
