@@ -12,12 +12,12 @@ import { T } from '../ui/text';
 import { COLORS, SHADOW, alpha } from '../ui/theme';
 
 const FEATURES: { label: string; free: boolean }[] = [
-  { label: 'Notification inbox & briefing', free: true },
+  { label: 'Inbox & briefing', free: true },
   { label: 'Animated cat widget', free: true },
-  { label: 'Privacy guard (OTPs hidden, bank apps blocked)', free: true },
+  { label: 'Privacy guard', free: true },
   { label: 'AI urgency sorting', free: false },
-  { label: 'Ask Pulse about any notification', free: false },
-  { label: 'AI reply drafts + one-tap reply', free: false },
+  { label: 'Ask Pulse', free: false },
+  { label: 'AI reply drafts', free: false },
 ];
 
 /** Pulse Pro paywall. Price and purchase come from RevenueCat (`default` offering, `$rc_monthly`, `pro` entitlement). */
@@ -70,13 +70,15 @@ export default function Paywall() {
 
   return (
     <SafeAreaView style={s.screen}>
-      <Pressable style={[s.close, ui.center]} hitSlop={10} onPress={() => router.back()} accessibilityLabel="Close">
-        <Icon name="close" size={24} color={COLORS.onSurface} />
-      </Pressable>
+      <View style={s.topBar}>
+        <Pressable style={[s.close, ui.center]} hitSlop={10} onPress={() => router.back()} accessibilityLabel="Close">
+          <Icon name="close" size={24} color={COLORS.onSurface} />
+        </Pressable>
+      </View>
 
       <ScrollView contentContainerStyle={s.content}>
-        <CatRoom pose="awake_sit" size={168} radius={28} />
-        <T variant="headlineLg" style={s.title}>
+        <CatRoom pose="awake_sit" size={96} radius={20} />
+        <T variant="headlineMd" style={s.title}>
           Let the cat watch your notifications
         </T>
         <T variant="bodyMd" color={COLORS.onSurfaceVariant} style={{ textAlign: 'center' }}>
@@ -149,8 +151,9 @@ export default function Paywall() {
 
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: COLORS.surface },
-  close: { position: 'absolute', top: 44, left: 16, width: 40, height: 40, borderRadius: 20, zIndex: 2 },
-  content: { alignItems: 'center', paddingHorizontal: 20, paddingTop: 56, paddingBottom: 24, gap: 14 },
+  topBar: { flexDirection: 'row', paddingHorizontal: 12, paddingTop: 4 },
+  close: { width: 40, height: 40, borderRadius: 20 },
+  content: { alignItems: 'center', paddingHorizontal: 20, paddingTop: 0, paddingBottom: 12, gap: 10 },
   title: { textAlign: 'center', marginTop: 6 },
   table: {
     alignSelf: 'stretch',
@@ -166,24 +169,24 @@ const s = StyleSheet.create({
     position: 'absolute',
     top: 6,
     bottom: 6,
-    right: 8,
+    right: 16,
     width: 64,
     borderRadius: 16,
     backgroundColor: alpha(COLORS.primaryFixed, 0.55),
   },
-  row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 11, paddingHorizontal: 16 },
+  row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 7, paddingHorizontal: 16 },
   label: { flex: 1, paddingRight: 8 },
   col: { width: 64, alignItems: 'center' },
   proPill: { backgroundColor: COLORS.primaryContainer, paddingHorizontal: 10, paddingVertical: 3, borderRadius: 8 },
   dash: { width: 14, height: 2, borderRadius: 1, backgroundColor: COLORS.outlineVariant },
   footer: {
     paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 20,
-    gap: 12,
+    paddingTop: 12,
+    paddingBottom: 12,
+    gap: 10,
     backgroundColor: COLORS.surfaceContainerLowest,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
   },
-  continue: { paddingVertical: 16 },
+  continue: { paddingVertical: 14 },
 });
