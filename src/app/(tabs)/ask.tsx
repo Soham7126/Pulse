@@ -1,10 +1,9 @@
 import { router } from 'expo-router';
 import { useRef, useState } from 'react';
-import { KeyboardAvoidingView, Pressable, ScrollView, Share, StyleSheet, Switch, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Pressable, ScrollView, Share, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { classifyPending } from '../../ai/classify';
-import { aiConfigured, aiEnabled, aiErrorMessage, callProxy, setAiEnabled } from '../../ai/client';
+import { aiConfigured, aiEnabled, aiErrorMessage, callProxy } from '../../ai/client';
 import { MAX_ASK_ITEMS, MAX_QUESTION, isAskResponse, type AskResponse } from '../../ai/contract';
 import { localStamp, toAiItem } from '../../ai/payload';
 import { MEMORY_DAYS } from '../../config/constants';
@@ -16,7 +15,6 @@ import { appName, deviceZone, displayName, readMemory, readMemoryRows } from '..
 import { T } from '../../ui/text';
 import { COLORS, FONTS, SHADOW, alpha } from '../../ui/theme';
 import { useNow } from '../../ui/use-live';
-import { refreshWidgets } from '../../widget/update';
 
 const SUGGESTIONS: { icon: IconName; tint: string; text: string }[] = [
   { icon: 'task-alt', tint: COLORS.secondary, text: 'Did anyone ask me to do something?' },
@@ -47,15 +45,7 @@ export default function Ask() {
   const memory = readMemory(now);
   const [question, setQuestion] = useState('');
   const [turns, setTurns] = useState<Turn[]>([]);
-  const [aiOn, setAiOn] = useState(aiEnabled);
   const scroll = useRef<ScrollView>(null);
-
-  const toggleAi = (on: boolean) => {
-    setAiEnabled(on);
-    setAiOn(on);
-    // Turning AI on classifies everything captured while it was off.
-    if (on) void classifyPending().then((n) => (n > 0 ? refreshWidgets(false) : undefined));
-  };
 
   const ask = async (text: string) => {
     const q = text.trim().slice(0, MAX_QUESTION);
@@ -81,7 +71,8 @@ export default function Ask() {
     requestAnimationFrame(() => scroll.current?.scrollToEnd({ animated: true }));
   };
 
-  const canAsk = aiOn && aiConfigured();
+  // Read every render (the tick re-renders each second), so switching Pulse AI in Apps applies immediately.
+  const canAsk = aiEnabled() && aiConfigured();
 
   return (
     <SafeAreaView style={s.screen} edges={['top']}>
@@ -138,25 +129,6 @@ export default function Ask() {
                 Past {MEMORY_DAYS}d
               </T>
             </View>
-            <View style={s.aiRow}>
-              <View style={{ flex: 1 }}>
-                <T variant="bodyMd" weight="semibold">
-                  Pulse AI
-                </T>
-                <T variant="labelSm" color={COLORS.onSurfaceVariant} style={{ marginTop: 2 }}>
-                  {aiConfigured()
-                    ? 'Sorts every notification and answers questions. Sends redacted text to GPT-4o via the Pulse proxy.'
-                    : 'The AI proxy is not set up yet.'}
-                </T>
-              </View>
-              <Switch
-                value={aiOn}
-                onValueChange={toggleAi}
-                disabled={!aiConfigured()}
-                trackColor={{ false: '#ECE7DE', true: COLORS.primaryContainer }}
-                thumbColor={COLORS.parchment}
-              />
-            </View>
           </Card>
 
           <View>
@@ -206,7 +178,7 @@ export default function Ask() {
           <TextInput
             value={question}
             onChangeText={setQuestion}
-            placeholder={canAsk ? 'Ask about any notification, person or app' : 'Turn on Pulse AI to ask'}
+            placeholder={canAsk ? 'Ask about any notification, person or app' : 'Turn on Pulse AI in Apps to ask'}
             placeholderTextColor={COLORS.outline}
             style={s.input}
             returnKeyType="send"
@@ -384,15 +356,6 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 8,
-  },
-  aiRow: {
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: alpha(COLORS.onSurface, 0.06),
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
   },
   suggestion: {
     flexDirection: 'row',

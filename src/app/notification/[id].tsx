@@ -288,9 +288,6 @@ export default function NotificationDetail() {
                     {Math.round(ai.data.confidence * 100)}% confident
                   </T>
                 </View>
-                <T variant="labelSm" color={COLORS.outline}>
-                  GPT-4o via Pulse proxy
-                </T>
               </View>
             </>
           )}

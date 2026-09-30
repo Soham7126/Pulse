@@ -4,19 +4,31 @@ import { requestPinWidget } from 'react-native-android-widget';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { NotificationListener } from '../../../modules/notification-listener';
+import { classifyPending } from '../../ai/classify';
+import { aiConfigured, aiEnabled, setAiEnabled } from '../../ai/client';
 import { getDb } from '../../db/db';
 import { listAppRules, setAppMode } from '../../db/queries';
 import { ActionButton, Card, Icon, Pill, appTint, styles as ui } from '../../ui/components';
 import { T } from '../../ui/text';
 import { COLORS, SHADOW, alpha } from '../../ui/theme';
 import { MEDIUM_WIDGET, SMALL_WIDGET } from '../../widget/pulse-widgets';
+import { refreshWidgets } from '../../widget/update';
 
 export default function Apps() {
   const [rules, setRules] = useState(() => listAppRules(getDb()));
 
+  const [aiOn, setAiOn] = useState(aiEnabled);
+
   const toggle = (packageName: string, on: boolean) => {
     setAppMode(getDb(), packageName, on ? 'allow' : 'deny');
     setRules(listAppRules(getDb()));
+  };
+
+  const toggleAi = (on: boolean) => {
+    setAiEnabled(on);
+    setAiOn(on);
+    // Turning AI on classifies everything captured while it was off.
+    if (on) void classifyPending().then((n) => (n > 0 ? refreshWidgets(false) : undefined));
   };
 
   return (
@@ -62,6 +74,21 @@ export default function Apps() {
                 <ActionButton label="Small" icon="widgets" onPress={() => requestPinWidget({ widgetName: SMALL_WIDGET })} />
               </View>
               <ActionButton label="Notification access settings" icon="open-in-new" onPress={() => NotificationListener.openPermissionSettings()} />
+            </Card>
+            <Card style={[ui.row, { gap: 12 }]}>
+              <View style={[s.appIcon, ui.center, { backgroundColor: COLORS.primaryFixed }]}>
+                <Icon name="auto-awesome" size={20} color={COLORS.onPrimaryFixed} />
+              </View>
+              <T variant="bodyMd" weight="semibold" style={{ flex: 1 }}>
+                Pulse AI
+              </T>
+              <Switch
+                value={aiOn}
+                onValueChange={toggleAi}
+                disabled={!aiConfigured()}
+                trackColor={{ false: '#ECE7DE', true: COLORS.primaryContainer }}
+                thumbColor={COLORS.parchment}
+              />
             </Card>
             <T variant="labelMd" weight="semibold" color={COLORS.onSurfaceVariant} upper style={{ letterSpacing: 1.2, paddingHorizontal: 4 }}>
               Apps that have notified you
