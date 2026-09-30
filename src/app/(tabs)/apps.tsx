@@ -87,7 +87,11 @@ export default function Apps() {
                 <T variant="bodyMd" weight="semibold">
                   Pulse AI
                 </T>
-                {pro ? null : <Pill text="PRO" bg={COLORS.primaryFixed} fg={COLORS.onPrimaryFixed} />}
+                {pro ? (
+                  <Pill text="Pulse Pro · Active" bg={COLORS.tertiaryFixed} fg={COLORS.onTertiaryFixedVariant} dot={COLORS.tertiary} />
+                ) : (
+                  <Pill text="PRO" bg={COLORS.primaryFixed} fg={COLORS.onPrimaryFixed} />
+                )}
               </View>
               <Switch
                 value={aiActive()}

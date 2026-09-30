@@ -30,13 +30,25 @@ export function configurePurchases(): void {
     .catch(() => undefined);
 }
 
+/** Asks RevenueCat for the entitlement; if it isn't there yet, drops the SDK cache and asks once more. */
+export async function refreshPro(): Promise<boolean> {
+  if (!configured) return false;
+  if (cache(await Purchases.getCustomerInfo())) return true;
+  await Purchases.invalidateCustomerInfoCache();
+  return cache(await Purchases.getCustomerInfo());
+}
+
 /** Free user → paywall → purchase → entitlement active. Resolves true once Pro is active. */
 export async function unlockPro(): Promise<boolean> {
   if (!configured) return false;
   const result = await RevenueCatUI.presentPaywall({ displayCloseButton: true });
-  if (result !== PAYWALL_RESULT.PURCHASED && result !== PAYWALL_RESULT.RESTORED) return false;
-  // Don't trust the paywall result alone: confirm the entitlement with RevenueCat.
-  return cache(await Purchases.getCustomerInfo());
+  console.log(`[pulse] paywall result=${result}`);
+  if (result === PAYWALL_RESULT.ERROR) return false;
+  // The entitlement is the source of truth, not the paywall's result code (it can close with CANCELLED
+  // after a completed purchase, and the SDK cache can lag the purchase by a moment).
+  const pro = await refreshPro();
+  console.log(`[pulse] pro active=${pro}`);
+  return pro;
 }
 
 export async function restorePro(): Promise<boolean> {
