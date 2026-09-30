@@ -1,15 +1,22 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { KeyboardAvoidingView, Pressable, ScrollView, Share, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { classifyPending } from '../../ai/classify';
+import { aiConfigured, aiEnabled, aiErrorMessage, callProxy, setAiEnabled } from '../../ai/client';
+import { MAX_ASK_ITEMS, MAX_QUESTION, isAskResponse, type AskResponse } from '../../ai/contract';
+import { localStamp, toAiItem } from '../../ai/payload';
 import { MEMORY_DAYS } from '../../config/constants';
+import type { CaptureRow } from '../../db/queries';
+import { shortTime } from '../../time/format';
 import { CatRoom } from '../../ui/cat-room';
-import { Card, Icon, comingSoon, styles as ui, type IconName } from '../../ui/components';
-import { readMemory } from '../../ui/pulse-data';
+import { Card, Icon, styles as ui, type IconName } from '../../ui/components';
+import { appName, deviceZone, displayName, readMemory, readMemoryRows } from '../../ui/pulse-data';
 import { T } from '../../ui/text';
 import { COLORS, FONTS, SHADOW, alpha } from '../../ui/theme';
 import { useNow } from '../../ui/use-live';
+import { refreshWidgets } from '../../widget/update';
 
 const SUGGESTIONS: { icon: IconName; tint: string; text: string }[] = [
   { icon: 'task-alt', tint: COLORS.secondary, text: 'Did anyone ask me to do something?' },
@@ -18,10 +25,63 @@ const SUGGESTIONS: { icon: IconName; tint: string; text: string }[] = [
   { icon: 'bedtime', tint: COLORS.primaryContainer, text: 'What happened while I was sleeping?' },
 ];
 
+type Turn = {
+  id: number;
+  question: string;
+  askedAt: number;
+  state: 'loading' | 'done' | 'error';
+  answer?: AskResponse;
+  sources?: CaptureRow[];
+  error?: string;
+};
+
+const CONFIDENCE_TEXT: Record<AskResponse['confidence'], string> = {
+  high: 'High Confidence',
+  medium: 'Medium Confidence',
+  low: 'Low Confidence',
+};
+
 export default function Ask() {
   const now = useNow();
+  const zone = deviceZone();
   const memory = readMemory(now);
   const [question, setQuestion] = useState('');
+  const [turns, setTurns] = useState<Turn[]>([]);
+  const [aiOn, setAiOn] = useState(aiEnabled);
+  const scroll = useRef<ScrollView>(null);
+
+  const toggleAi = (on: boolean) => {
+    setAiEnabled(on);
+    setAiOn(on);
+    // Turning AI on classifies everything captured while it was off.
+    if (on) void classifyPending().then((n) => (n > 0 ? refreshWidgets(false) : undefined));
+  };
+
+  const ask = async (text: string) => {
+    const q = text.trim().slice(0, MAX_QUESTION);
+    if (!q) return;
+    const id = Date.now();
+    setQuestion('');
+    setTurns((t) => [...t, { id, question: q, askedAt: id, state: 'loading' }]);
+    requestAnimationFrame(() => scroll.current?.scrollToEnd({ animated: true }));
+
+    const rows = readMemoryRows(Date.now()).slice(0, MAX_ASK_ITEMS);
+    const byId = new Map(rows.map((r) => [String(r.id), r]));
+    try {
+      const answer = await callProxy(
+        '/ask',
+        { question: q, now: localStamp(Date.now(), zone), items: rows.map((r) => toAiItem(r, zone)) },
+        isAskResponse,
+      );
+      const sources = answer.citation_ids.map((c) => byId.get(c)).filter((r): r is CaptureRow => Boolean(r));
+      setTurns((t) => t.map((x) => (x.id === id ? { ...x, state: 'done', answer, sources } : x)));
+    } catch (e) {
+      setTurns((t) => t.map((x) => (x.id === id ? { ...x, state: 'error', error: aiErrorMessage(e) } : x)));
+    }
+    requestAnimationFrame(() => scroll.current?.scrollToEnd({ animated: true }));
+  };
+
+  const canAsk = aiOn && aiConfigured();
 
   return (
     <SafeAreaView style={s.screen} edges={['top']}>
@@ -43,12 +103,12 @@ export default function Ask() {
       </View>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior="height">
-        <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
+        <ScrollView ref={scroll} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
           <Card style={{ padding: 20, borderColor: alpha(COLORS.onSurface, 0.06) }}>
             <View style={[ui.row, { gap: 16 }]}>
               <View>
                 <CatRoom pose={memory.count > 0 ? 'awake_sit' : 'sleep_curled'} size={80} borderColor={COLORS.primaryFixed} />
-                <View style={s.indexDot} />
+                <View style={[s.indexDot, { backgroundColor: canAsk ? COLORS.tertiaryContainer : COLORS.outlineVariant }]} />
               </View>
               <View style={s.bubble}>
                 <View style={s.bubbleTail} />
@@ -63,7 +123,7 @@ export default function Ask() {
                   <T variant="bodySm" weight="semibold" color={COLORS.primary}>
                     {memory.count} {memory.count === 1 ? 'notification' : 'notifications'}
                   </T>{' '}
-                  from the last {MEMORY_DAYS} days.
+                  from the last {MEMORY_DAYS} days.{canAsk ? ' Ask me anything.' : ''}
                 </T>
               </View>
             </View>
@@ -78,22 +138,36 @@ export default function Ask() {
                 Past {MEMORY_DAYS}d
               </T>
             </View>
+            <View style={s.aiRow}>
+              <View style={{ flex: 1 }}>
+                <T variant="bodyMd" weight="semibold">
+                  Pulse AI
+                </T>
+                <T variant="labelSm" color={COLORS.onSurfaceVariant} style={{ marginTop: 2 }}>
+                  {aiConfigured()
+                    ? 'Sorts every notification and answers questions. Sends redacted text to GPT-4o via the Pulse proxy.'
+                    : 'The AI proxy is not set up yet.'}
+                </T>
+              </View>
+              <Switch
+                value={aiOn}
+                onValueChange={toggleAi}
+                disabled={!aiConfigured()}
+                trackColor={{ false: '#ECE7DE', true: COLORS.primaryContainer }}
+                thumbColor={COLORS.parchment}
+              />
+            </View>
           </Card>
 
           <View>
-            <View style={[ui.row, { justifyContent: 'space-between', marginBottom: 10, paddingHorizontal: 2 }]}>
-              <T variant="labelMd" weight="semibold" color={COLORS.onSurfaceVariant} upper style={{ letterSpacing: 1.2 }}>
-                Suggested memory queries
-              </T>
-              <T variant="labelSm" color={COLORS.outline}>
-                Semantic Search
-              </T>
-            </View>
+            <T variant="labelMd" weight="semibold" color={COLORS.onSurfaceVariant} upper style={{ letterSpacing: 1.2, marginBottom: 10, paddingHorizontal: 2 }}>
+              Suggested memory queries
+            </T>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingRight: 20 }}>
               {SUGGESTIONS.map((q) => (
                 <Pressable
                   key={q.text}
-                  onPress={() => setQuestion(q.text)}
+                  onPress={() => (canAsk ? ask(q.text) : setQuestion(q.text))}
                   style={({ pressed }) => [s.suggestion, SHADOW.cardSm, { transform: [{ scale: pressed ? 0.95 : 1 }] }]}
                 >
                   <Icon name={q.icon} size={14} color={q.tint} />
@@ -103,15 +177,26 @@ export default function Ask() {
             </ScrollView>
           </View>
 
-          <View style={s.hint}>
-            <View style={[s.hintIcon, ui.center]}>
-              <Icon name="smart-toy" size={16} color={COLORS.onPrimaryFixed} />
+          {turns.map((t) => (
+            <View key={t.id} style={{ gap: 16 }}>
+              <View style={s.userRow}>
+                <View style={s.userBubble}>
+                  <T variant="bodyMd" weight="medium" color="#FFFFFF">
+                    {t.question}
+                  </T>
+                  <T variant="labelSm" color={alpha('#FFFFFF', 0.7)} style={{ textAlign: 'right', marginTop: 4 }}>
+                    {shortTime(t.askedAt, now, zone)}
+                  </T>
+                </View>
+                <View style={[s.you, ui.center]}>
+                  <T variant="labelSm" weight="semibold" color={COLORS.onSecondaryFixed}>
+                    You
+                  </T>
+                </View>
+              </View>
+              <AnswerCard turn={t} now={now} zone={zone} onRetry={() => ask(t.question)} />
             </View>
-            <T variant="bodySm" color={COLORS.onSurfaceVariant} style={{ flex: 1, lineHeight: 18 }}>
-              Answers will come only from the notifications above, with sources you can tap. Ask Pulse switches on in a
-              later update.
-            </T>
-          </View>
+          ))}
         </ScrollView>
 
         <View style={[s.composer, SHADOW.floating]}>
@@ -121,21 +206,127 @@ export default function Ask() {
           <TextInput
             value={question}
             onChangeText={setQuestion}
-            placeholder="Ask about any notification, person or app"
+            placeholder={canAsk ? 'Ask about any notification, person or app' : 'Turn on Pulse AI to ask'}
             placeholderTextColor={COLORS.outline}
             style={s.input}
             returnKeyType="send"
-            onSubmitEditing={() => comingSoon('Ask Pulse')}
+            editable={canAsk}
+            maxLength={MAX_QUESTION}
+            onSubmitEditing={() => ask(question)}
           />
-          <Pressable style={[s.composerIcon, ui.center]} onPress={() => comingSoon('Voice questions')}>
-            <Icon name="mic" size={20} />
-          </Pressable>
-          <Pressable style={[s.send, ui.center]} onPress={() => comingSoon('Ask Pulse')}>
+          <Pressable
+            style={[s.send, ui.center, { opacity: canAsk && question.trim() ? 1 : 0.5 }]}
+            disabled={!canAsk || !question.trim()}
+            onPress={() => ask(question)}
+          >
             <Icon name="arrow-upward" size={20} color={COLORS.onPrimaryContainer} />
           </Pressable>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
+  );
+}
+
+function AnswerCard({ turn, now, zone, onRetry }: { turn: Turn; now: number; zone: string; onRetry: () => void }) {
+  if (turn.state === 'loading') {
+    return (
+      <Card style={[ui.row, { gap: 12 }]}>
+        <CatRoom pose="awake_sit" size={48} radius={10} />
+        <T variant="bodySm" color={COLORS.onSurfaceVariant} style={{ flex: 1 }}>
+          Looking through your notifications…
+        </T>
+      </Card>
+    );
+  }
+  if (turn.state === 'error' || !turn.answer) {
+    return (
+      <Card style={{ gap: 10 }}>
+        <T variant="bodyMd">{turn.error}</T>
+        <Pressable onPress={onRetry} style={[ui.row, { gap: 4 }]}>
+          <Icon name="refresh" size={16} color={COLORS.primary} />
+          <T variant="labelMd" color={COLORS.primary}>
+            Try again
+          </T>
+        </Pressable>
+      </Card>
+    );
+  }
+  const { answer, sources = [] } = turn;
+  return (
+    <View style={[s.answer, SHADOW.floating]}>
+      <View style={s.answerHead}>
+        <View style={[ui.row, { gap: 8, flex: 1 }]}>
+          <View style={[s.botIcon, ui.center]}>
+            <Icon name="smart-toy" size={14} color={COLORS.onPrimaryFixed} />
+          </View>
+          <T variant="labelSm" weight="semibold" color={COLORS.primary} style={{ flex: 1 }}>
+            PULSE SYNTHESIS • {sources.length} {sources.length === 1 ? 'MATCH' : 'MATCHES'} FOUND
+          </T>
+        </View>
+        <View style={[ui.pill, { backgroundColor: COLORS.surfaceContainer }]}>
+          <View style={[ui.dotSm, { backgroundColor: answer.confidence === 'low' ? COLORS.secondary : COLORS.tertiary }]} />
+          <T variant="labelSm" color={COLORS.onSurfaceVariant}>
+            {CONFIDENCE_TEXT[answer.confidence]}
+          </T>
+        </View>
+      </View>
+      <T variant="bodyMd" style={{ lineHeight: 22 }}>
+        {answer.answer}
+      </T>
+      {sources.length > 0 ? (
+        <View style={{ gap: 10 }}>
+          <View style={[ui.row, { justifyContent: 'space-between' }]}>
+            <T variant="labelSm" color={COLORS.outline}>
+              CITATIONS & VERIFIED SOURCES
+            </T>
+            <T variant="labelSm" color={COLORS.outline}>
+              {sources.length} {sources.length === 1 ? 'Notification' : 'Notifications'}
+            </T>
+          </View>
+          {sources.map((r) => (
+            <Pressable
+              key={r.id}
+              onPress={() => router.push({ pathname: '/notification/[id]', params: { id: String(r.id) } })}
+              style={s.source}
+            >
+              <View style={[s.sourceIcon, ui.center, { backgroundColor: r.intent === 'communication' ? COLORS.tertiaryFixed : COLORS.secondaryFixed }]}>
+                <Icon name={r.intent === 'communication' ? 'chat' : 'notifications'} size={16} color={COLORS.onSurface} />
+              </View>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <View style={[ui.row, { gap: 6, flexWrap: 'wrap' }]}>
+                  <T variant="labelSm" weight="semibold">
+                    {appName(r)}
+                  </T>
+                  <T variant="labelMd" numberOfLines={1} style={{ flexShrink: 1 }}>
+                    {displayName(r)}
+                  </T>
+                  <T variant="labelSm" color={COLORS.outline}>
+                    {shortTime(r.posted_at_utc, now, zone)}
+                  </T>
+                </View>
+                {r.text ? (
+                  <T variant="bodySm" color={COLORS.onSurfaceVariant} numberOfLines={1} style={{ marginTop: 2 }}>
+                    “{r.text}”
+                  </T>
+                ) : null}
+              </View>
+              <View style={s.view}>
+                <T variant="labelMd">View</T>
+                <Icon name="arrow-forward" size={14} color={COLORS.onSurface} />
+              </View>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
+      <View style={s.answerFoot}>
+        <Pressable onPress={() => Share.share({ message: answer.answer })} style={[ui.row, { gap: 6 }]}>
+          <Icon name="content-copy" size={16} color={COLORS.outline} />
+          <T variant="labelMd" color={COLORS.outline}>
+            Copy
+          </T>
+        </Pressable>
+      </View>
+    </View>
   );
 }
 
@@ -159,7 +350,6 @@ const s = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: COLORS.tertiaryContainer,
     borderWidth: 2,
     borderColor: COLORS.surfaceContainerLowest,
   },
@@ -195,6 +385,15 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 8,
   },
+  aiRow: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: alpha(COLORS.onSurface, 0.06),
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
   suggestion: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -206,17 +405,57 @@ const s = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
-  hint: {
+  userRow: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end', gap: 8 },
+  userBubble: {
+    backgroundColor: COLORS.primaryContainer,
+    borderRadius: 16,
+    borderTopRightRadius: 4,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    maxWidth: '85%',
+  },
+  you: { width: 32, height: 32, borderRadius: 16, backgroundColor: COLORS.secondaryFixed, marginBottom: 4 },
+  answer: {
+    backgroundColor: COLORS.surfaceContainerLowest,
+    borderRadius: 24,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: alpha(COLORS.primary, 0.2),
+    gap: 16,
+  },
+  answerHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: alpha(COLORS.onSurface, 0.06),
+  },
+  botIcon: { width: 24, height: 24, borderRadius: 12, backgroundColor: COLORS.primaryFixed },
+  source: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    padding: 14,
+    backgroundColor: COLORS.surfaceContainerLow,
     borderRadius: 16,
-    backgroundColor: COLORS.parchment,
+    padding: 14,
     borderWidth: 1,
-    borderColor: alpha(COLORS.outlineVariant, 0.3),
+    borderColor: alpha(COLORS.onSurface, 0.06),
   },
-  hintIcon: { width: 28, height: 28, borderRadius: 14, backgroundColor: COLORS.primaryFixed },
+  sourceIcon: { width: 36, height: 36, borderRadius: 18 },
+  view: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: alpha(COLORS.onSurface, 0.15),
+    backgroundColor: COLORS.surfaceContainerLowest,
+  },
+  answerFoot: { paddingTop: 12, borderTopWidth: 1, borderTopColor: alpha(COLORS.onSurface, 0.06), flexDirection: 'row' },
   composer: {
     flexDirection: 'row',
     alignItems: 'center',
