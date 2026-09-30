@@ -4,8 +4,7 @@ You are helping build **Pulse**, an Android app that reads notifications, classi
 
 ## Current phase
 
-**Phase 1: build only.** Follow `docs/tasks.md` milestone by milestone (M0 → M9).
-**Do NOT add RevenueCat** (no SDK, no paywall, no purchase code) in Phase 1. Gated features call `canUse(...)` from `src/entitlements`, which is a stub that returns true. That seam is the only Phase 2 prep.
+**Phase 2 started (2026-09-30): RevenueCat.** Pulse AI (classification, Ask Pulse, interpretation + reply draft) is the Pro feature behind the `pro` entitlement. Every gated feature calls `canUse(...)` from `src/entitlements`, which reads the entitlement cached from RevenueCat (the headless task cannot call the SDK). Entry points go through `unlockPulseAi()` (paywall → purchase → entitlement → unlock). The demo uses RevenueCat Test Store; server-side enforcement (webhook → proxy, H7) is still to do. Remaining Phase 1 milestones (M2–M9) continue alongside.
 
 ## Environment constraints
 
@@ -29,7 +28,7 @@ You are helping build **Pulse**, an Android app that reads notifications, classi
 - Redact OTPs/digit runs **before** persistence or any network call.
 - Hard-blocked apps (banking, authenticators, password managers) are dropped at the first step of ingest, and the user cannot override this in Phase 1.
 - LLM calls only through the proxy, only with redacted minimal text, only when the AI toggle is on.
-- Never put an API key in the app bundle.
+- Never put a secret API key in the app bundle (the OpenAI key lives only in the proxy). RevenueCat's public SDK key is client-side by design and lives in `.env` (`EXPO_PUBLIC_REVENUECAT_API_KEY`).
 
 ## Time rules (critical)
 

@@ -140,11 +140,11 @@ Work milestone by milestone. Do not start a milestone until the previous one's *
 
 - [ ] Create RevenueCat project; connect Play Console app; create products (monthly, annual, trial)
 - [ ] Set up Play Console internal test track and license testers early (approval lag)
-- [ ] Define `pro` entitlement and offerings
-- [ ] Add the RevenueCat React Native SDK (+ UI package) to the dev build; rebuild via EAS
-- [ ] Replace the `entitlements` stub with real `isPro()`
-- [ ] Paywall at moments of desire (Ask, briefing, widget modes, skins)
-- [ ] Restore purchases + manage subscription
+- [ ] Define `pro` entitlement and offerings (dashboard, Test Store for the demo)
+- [x] Add the RevenueCat React Native SDK (+ UI package) to the dev build; rebuild via EAS (10.10.2)
+- [x] Replace the `entitlements` stub with real `isPro()` (cached from RevenueCat for the headless task)
+- [x] Paywall at moments of desire: Pulse AI switch, Ask Pulse send, detail "Unlock Pulse AI" (RevenueCat Paywall)
+- [ ] Restore purchases + manage subscription (restore done; manage subscription to do)
 - [ ] Webhook → proxy so non-Pro requests are rejected server-side
 - [ ] Persist entitlement into the widget snapshot; Pro widget modes
 - [ ] Cat skins (palette packs) as a Pro perk
