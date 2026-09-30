@@ -1,14 +1,15 @@
 import { Platform } from 'react-native';
-import Purchases, { LOG_LEVEL, type CustomerInfo } from 'react-native-purchases';
-import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
+import Purchases, { LOG_LEVEL, type CustomerInfo, type PurchasesError, type PurchasesPackage } from 'react-native-purchases';
 
 import { PRO_ACTIVE_KEY } from '../config/constants';
 import { getDb } from '../db/db';
 import { setSetting } from '../db/queries';
+import { openPaywall } from './paywall-bridge';
 import { hasPro } from './pro';
 
 // RevenueCat public SDK key (Test Store key for the demo). Client-side by design, unlike the OpenAI key.
 const API_KEY = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY;
+const MONTHLY = '$rc_monthly';
 let configured = false;
 
 const cache = (info: CustomerInfo): boolean => {
@@ -22,7 +23,7 @@ export const purchasesConfigured = (): boolean => configured;
 /** Call once from the app (not the headless task). Keeps the cached Pro flag in sync with RevenueCat. */
 export function configurePurchases(): void {
   if (configured || !API_KEY || Platform.OS !== 'android') return;
-  // Dev builds: full RevenueCat logs (paywall package selection, purchase flow) for debugging the demo.
+  // Dev builds: full RevenueCat logs for debugging the purchase flow.
   if (__DEV__) void Purchases.setLogLevel(LOG_LEVEL.DEBUG);
   Purchases.configure({ apiKey: API_KEY });
   Purchases.addCustomerInfoUpdateListener(cache);
@@ -30,16 +31,6 @@ export function configurePurchases(): void {
   void Purchases.getCustomerInfo()
     .then(cache)
     .catch(() => undefined);
-  if (__DEV__) {
-    // Dev diagnostics: which offering/packages this install actually receives (ids only).
-    void Purchases.getOfferings()
-      .then((o) =>
-        console.log(
-          `[pulse] offerings current=${o.current?.identifier ?? 'none'} packages=${o.current?.availablePackages.map((p) => `${p.identifier}:${p.product.identifier}`).join(',') ?? ''} all=${Object.keys(o.all).join(',')}`,
-        ),
-      )
-      .catch((e: unknown) => console.log(`[pulse] offerings error=${e instanceof Error ? e.message : String(e)}`));
-  }
 }
 
 /** Asks RevenueCat for the entitlement; if it isn't there yet, drops the SDK cache and asks once more. */
@@ -50,20 +41,33 @@ export async function refreshPro(): Promise<boolean> {
   return cache(await Purchases.getCustomerInfo());
 }
 
-/** Free user → paywall → purchase → entitlement active. Resolves true once Pro is active. */
+/** The package the Pulse paywall sells: `$rc_monthly` from the current (`default`) offering. */
+export async function loadProPackage(): Promise<PurchasesPackage | null> {
+  if (!configured) return null;
+  const { current } = await Purchases.getOfferings();
+  return current?.availablePackages.find((p) => p.identifier === MONTHLY) ?? current?.availablePackages[0] ?? null;
+}
+
+/** Test Store / Play purchase through RevenueCat. Resolves the entitlement state; 'cancelled' if the user backed out. */
+export async function purchasePro(pkg: PurchasesPackage): Promise<'pro' | 'not_pro' | 'cancelled'> {
+  try {
+    const { customerInfo } = await Purchases.purchasePackage(pkg);
+    // The entitlement is the source of truth; refresh once if the returned info lags the purchase.
+    return cache(customerInfo) || (await refreshPro()) ? 'pro' : 'not_pro';
+  } catch (e) {
+    if ((e as Partial<PurchasesError>).userCancelled) return 'cancelled';
+    throw e;
+  }
+}
+
+/**
+ * Free user → Pulse paywall → purchase → entitlement active. Resolves true once Pro is active.
+ * The paywall is Pulse's own screen (src/app/paywall.tsx): RevenueCat's hosted paywall opened with an
+ * empty offering on this SDK (served via a Workflow), so its Continue button had nothing to buy.
+ */
 export async function unlockPro(): Promise<boolean> {
   if (!configured) return false;
-  // Pass the current offering explicitly: without it the paywall opened with an empty placeholder offering
-  // (RevenueCat logged "Offering '' ... has these packages instead: []"), so Continue had nothing to buy.
-  const { current } = await Purchases.getOfferings();
-  const result = await RevenueCatUI.presentPaywall({ displayCloseButton: true, ...(current ? { offering: current } : {}) });
-  console.log(`[pulse] paywall result=${result}`);
-  if (result === PAYWALL_RESULT.ERROR) return false;
-  // The entitlement is the source of truth, not the paywall's result code (it can close with CANCELLED
-  // after a completed purchase, and the SDK cache can lag the purchase by a moment).
-  const pro = await refreshPro();
-  console.log(`[pulse] pro active=${pro}`);
-  return pro;
+  return openPaywall();
 }
 
 export async function restorePro(): Promise<boolean> {
