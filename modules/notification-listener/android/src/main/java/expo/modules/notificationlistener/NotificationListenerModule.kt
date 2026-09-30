@@ -18,6 +18,11 @@ class NotificationListenerModule : Module() {
       enabled.split(':').any { ComponentName.unflattenFromString(it)?.packageName == context.packageName }
     }
 
+    // Returns "sent" | "gone" (notification dismissed) | "no_reply_action" | "not_connected".
+    AsyncFunction("reply") { key: String, text: String ->
+      PulseNotificationListenerService.instance?.reply(key, text) ?: "not_connected"
+    }
+
     Function("openPermissionSettings") {
       appContext.reactContext?.startActivity(
         Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

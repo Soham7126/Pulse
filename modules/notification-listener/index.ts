@@ -14,9 +14,13 @@ export type RawNotification = {
   text: string | null;
 };
 
+export type ReplyResult = 'sent' | 'gone' | 'no_reply_action' | 'not_connected';
+
 type NotificationListenerNative = {
   isPermissionGranted(): boolean;
   openPermissionSettings(): void;
+  /** Sends `text` through the notification's inline-reply action. Only while it is still showing. */
+  reply(key: string, text: string): Promise<ReplyResult>;
 };
 
 export const NotificationListener = requireNativeModule<NotificationListenerNative>('NotificationListener');

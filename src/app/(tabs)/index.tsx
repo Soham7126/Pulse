@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { bucketFor } from '../../classify/buckets';
+import { bucketOf } from '../../classify/buckets';
 import { getDb } from '../../db/db';
-import { listAppRules, type CaptureRow } from '../../db/queries';
+import { listAppRules, setHandled, type CaptureRow } from '../../db/queries';
 import { greeting, headerDate, shortTime } from '../../time/format';
 import { CatRoom } from '../../ui/cat-room';
 import {
@@ -19,10 +19,11 @@ import {
   comingSoon,
   styles as ui,
 } from '../../ui/components';
-import { appName, deviceZone, displayName, perAppCounts, readToday } from '../../ui/pulse-data';
+import { appName, badgeFor, deviceZone, displayName, perAppCounts, readToday } from '../../ui/pulse-data';
 import { T } from '../../ui/text';
 import { COLORS, SHADOW, alpha } from '../../ui/theme';
 import { useNow } from '../../ui/use-live';
+import { refreshWidgets } from '../../widget/update';
 
 type Filter = 'overview' | 'focus' | 'cleared';
 
@@ -33,7 +34,8 @@ export default function Today() {
   const [filter, setFilter] = useState<Filter>('overview');
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const attention = [...today.groups.people, ...today.groups.work].sort((a, b) => b.posted_at_utc - a.posted_at_utc);
+  const { attention, quiet, handled } = today;
+  const upcoming = today.groups.shopping.filter((r) => !attention.includes(r));
   const listening = listAppRules(getDb()).filter((r) => r.mode === 'allow').length;
   const asleep = today.pose === 'sleep_curled';
   const latest = today.rows[0];
@@ -77,13 +79,13 @@ export default function Today() {
                   {today.rows.length} {today.rows.length === 1 ? 'notification' : 'notifications'}
                 </T>
                 <T variant="bodySm" weight="medium" color={COLORS.primary}>
-                  → {attention.length} from people & work
+                  → {attention.length} {attention.length === 1 ? 'needs' : 'need'} your attention
                 </T>
               </View>
               <T variant="bodySm" color={COLORS.onSurfaceVariant} style={{ lineHeight: 20 }}>
                 {asleep
-                  ? 'Nothing from people, work or shopping yet today. Your queue is guarded.'
-                  : `${today.groups.quiet.length} quiet ${today.groups.quiet.length === 1 ? 'update is' : 'updates are'} collapsed below.`}
+                  ? 'Nothing needs you right now. Your queue is guarded.'
+                  : `${quiet.length} quiet ${quiet.length === 1 ? 'update is' : 'updates are'} collapsed below.`}
               </T>
             </View>
             <View style={{ alignItems: 'center' }}>
@@ -102,7 +104,16 @@ export default function Today() {
         </View>
 
         {filter === 'cleared' ? (
-          <EmptyState pose="sleep_curled" title="Nothing cleared yet" body="Items you mark as handled will rest here." />
+          handled.length === 0 ? (
+            <EmptyState pose="sleep_curled" title="Nothing cleared yet" body="Items you mark as handled will rest here." />
+          ) : (
+            <View style={{ gap: 12 }}>
+              <SectionHeader dot={COLORS.tertiary} title="Handled today" right={`${handled.length} cleared`} />
+              {handled.map((r) => (
+                <AttentionCard key={r.key} row={r} now={now} zone={zone} />
+              ))}
+            </View>
+          )
         ) : today.rows.length === 0 ? (
           <EmptyState pose="sleep_curled" title="No notifications yet today" body="The cat will wake up when something arrives." />
         ) : (
@@ -112,7 +123,10 @@ export default function Today() {
                 <SectionHeader
                   dot={COLORS.secondary}
                   title="Needs your attention"
-                  right={`${attention.length} ${attention.length === 1 ? 'message' : 'messages'}`}
+                  right={(() => {
+                    const urgent = attention.filter((r) => r.priority === 'high').length;
+                    return urgent > 0 ? `${urgent} Urgent` : `${attention.length} ${attention.length === 1 ? 'item' : 'items'}`;
+                  })()}
                 />
                 {(filter === 'focus' ? attention : attention.slice(0, 3)).map((r) => (
                   <AttentionCard key={r.key} row={r} now={now} zone={zone} />
@@ -120,14 +134,14 @@ export default function Today() {
               </View>
             ) : null}
 
-            {filter === 'overview' && today.groups.shopping.length > 0 ? (
+            {filter === 'overview' && upcoming.length > 0 ? (
               <View style={{ gap: 12 }}>
                 <SectionHeader
                   dot={COLORS.tertiary}
                   title="Today & upcoming"
-                  right={`${today.groups.shopping.length} ${today.groups.shopping.length === 1 ? 'update' : 'updates'}`}
+                  right={`${upcoming.length} ${upcoming.length === 1 ? 'update' : 'updates'}`}
                 />
-                {today.groups.shopping.map((r) => (
+                {upcoming.map((r) => (
                   <Card key={r.key} style={[ui.row, { alignItems: 'flex-start', gap: 14 }, SHADOW.cardSm]}>
                     <IconTile name="local-shipping" tint={COLORS.primary} />
                     <View style={{ flex: 1, minWidth: 0 }}>
@@ -155,7 +169,7 @@ export default function Today() {
               </View>
             ) : null}
 
-            {filter === 'overview' && today.groups.quiet.length > 0 ? (
+            {filter === 'overview' && quiet.length > 0 ? (
               <View style={s.drawer}>
                 <Pressable style={[ui.row, { justifyContent: 'space-between' }]} onPress={() => setDrawerOpen((o) => !o)}>
                   <View style={[ui.row, { gap: 12, flex: 1 }]}>
@@ -163,9 +177,9 @@ export default function Today() {
                       <Icon name="visibility-off" size={16} color={COLORS.outline} />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <T variant="headlineSm">{today.groups.quiet.length} notifications collapsed</T>
+                      <T variant="headlineSm">{quiet.length} notifications collapsed</T>
                       <T variant="bodySm" color={COLORS.onSurfaceVariant} numberOfLines={2}>
-                        {perAppCounts(today.groups.quiet)
+                        {perAppCounts(quiet)
                           .map((c) => `${c.count} ${c.app}`)
                           .join(', ')}
                       </T>
@@ -175,7 +189,7 @@ export default function Today() {
                 </Pressable>
                 {drawerOpen ? (
                   <View style={s.drawerBody}>
-                    {today.groups.quiet.map((r) => (
+                    {quiet.map((r) => (
                       <View key={r.key} style={[ui.row, { justifyContent: 'space-between', paddingVertical: 4 }]}>
                         <T variant="bodySm" color={COLORS.onSurfaceVariant} numberOfLines={1} style={{ flex: 1 }}>
                           {appName(r)}: {r.title ?? r.text ?? 'Notification'}
@@ -220,10 +234,19 @@ function Chip({ label, count, active, onPress }: { label: string; count?: number
   );
 }
 
+const BADGE_TONES = {
+  urgent: { bg: COLORS.secondaryFixed, fg: COLORS.onSecondaryFixed },
+  action: { bg: COLORS.primaryFixed, fg: COLORS.onPrimaryFixed },
+  plain: { bg: COLORS.surfaceContainer, fg: COLORS.onSurfaceVariant },
+} as const;
+
 function AttentionCard({ row, now, zone }: { row: CaptureRow; now: number; zone: string }) {
-  const isWork = bucketFor(row.package_name) === 'work';
+  const isWork = bucketOf(row) === 'work';
+  const handled = row.status === 'handled';
+  const badge = badgeFor(row);
+  const note = row.urgency_note ?? (row.priority === 'high' ? row.action_text : null);
   return (
-    <Card accent={isWork ? COLORS.primary : COLORS.secondary}>
+    <Card accent={handled ? COLORS.tertiary : row.priority === 'high' || !isWork ? COLORS.secondary : COLORS.primary}>
       <View style={[ui.row, { justifyContent: 'space-between', alignItems: 'flex-start' }]}>
         <View style={[ui.row, { gap: 10, flex: 1 }]}>
           <View style={[s.kindIcon, ui.center, { backgroundColor: isWork ? COLORS.primaryFixed : COLORS.tertiaryFixed }]}>
@@ -243,28 +266,43 @@ function AttentionCard({ row, now, zone }: { row: CaptureRow; now: number; zone:
             </T>
           </View>
         </View>
-        <Pill
-          text={isWork ? 'Work' : 'Conversation'}
-          bg={isWork ? COLORS.primaryFixed : COLORS.secondaryFixed}
-          fg={isWork ? COLORS.onPrimaryFixed : COLORS.onSecondaryFixed}
-        />
+        {handled ? (
+          <Pill text="Handled" bg={COLORS.tertiaryFixed} fg={COLORS.onTertiaryFixedVariant} icon="check" />
+        ) : (
+          <Pill text={badge.text} bg={BADGE_TONES[badge.tone].bg} fg={BADGE_TONES[badge.tone].fg} />
+        )}
       </View>
       {row.text ? (
         <View style={ui.quote}>
           <T variant="bodyMd" italic numberOfLines={4}>
             “{row.text}”
           </T>
+          {note && !handled ? (
+            <View style={[ui.row, { gap: 4, marginTop: 6 }]}>
+              <Icon name="priority-high" size={14} color={COLORS.secondary} />
+              <T variant="labelSm" color={COLORS.secondary} style={{ flex: 1 }}>
+                {note}
+              </T>
+            </View>
+          ) : null}
         </View>
       ) : null}
       <View style={[ui.row, { marginTop: 12, paddingTop: 4 }]}>
         <ActionButton
-          label={isWork ? 'Open' : 'Reply'}
-          icon={isWork ? 'open-in-new' : 'reply'}
+          label={row.intent === 'communication' || (!row.intent && !isWork) ? 'Reply' : 'Open'}
+          icon={row.intent === 'communication' || (!row.intent && !isWork) ? 'reply' : 'open-in-new'}
           primary
-          onPress={() => comingSoon(isWork ? 'Opening the source app' : 'Reply')}
+          onPress={() => router.push({ pathname: '/notification/[id]', params: { id: String(row.id) } })}
           style={{ flex: 1 }}
         />
-        <ActionButton label="Mark Handled" icon="check-circle" onPress={() => comingSoon('Mark handled')} />
+        <ActionButton
+          label={handled ? 'Restore' : 'Mark Handled'}
+          icon={handled ? 'undo' : 'check-circle'}
+          onPress={() => {
+            setHandled(getDb(), row.id, !handled, Date.now());
+            void refreshWidgets(false);
+          }}
+        />
       </View>
     </Card>
   );

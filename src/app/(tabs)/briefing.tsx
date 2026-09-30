@@ -3,7 +3,8 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DEFAULT_SLEEP_END, DEFAULT_SLEEP_START } from '../../config/constants';
-import type { CaptureRow } from '../../db/queries';
+import { getDb } from '../../db/db';
+import { setHandled, type CaptureRow } from '../../db/queries';
 import { clockLabel, shortTime } from '../../time/format';
 import { CatRoom } from '../../ui/cat-room';
 import {
@@ -22,6 +23,9 @@ import { appName, deviceZone, displayName, perAppCounts, readAway } from '../../
 import { T } from '../../ui/text';
 import { COLORS, SHADOW, alpha } from '../../ui/theme';
 import { useNow } from '../../ui/use-live';
+import { refreshWidgets } from '../../widget/update';
+
+const openDetail = (r: CaptureRow) => router.push({ pathname: '/notification/[id]', params: { id: String(r.id) } });
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
@@ -163,7 +167,7 @@ export default function Briefing() {
                   {r.text ? ` ${r.text}` : ''}
                 </T>
                 <View style={[ui.row, { marginTop: 8 }]}>
-                  <ActionButton label={`Open ${appName(r)}`} compact onPress={() => comingSoon('Opening the source app')} />
+                  <ActionButton label={`Open ${appName(r)}`} compact onPress={() => openDetail(r)} />
                   <ActionButton label="Snooze" compact outlined onPress={() => comingSoon('Snooze')} />
                 </View>
               </Card>
@@ -195,7 +199,7 @@ export default function Briefing() {
                     {r.text ?? appName(r)}
                   </T>
                 </View>
-                <Pressable style={[s.chevron, ui.center]} onPress={() => comingSoon('Delivery tracking')}>
+                <Pressable style={[s.chevron, ui.center]} onPress={() => openDetail(r)}>
                   <Icon name="chevron-right" size={18} color={COLORS.onSurface} />
                 </Pressable>
               </Card>
@@ -239,7 +243,11 @@ export default function Briefing() {
               label={`Mark all ${quiet.length} noise as handled`}
               icon="check-circle"
               primary
-              onPress={() => comingSoon('Mark handled')}
+              onPress={() => {
+                const db = getDb();
+                for (const r of quiet) setHandled(db, r.id, true, Date.now());
+                void refreshWidgets(false);
+              }}
               style={{ paddingVertical: 14 }}
             />
             <ActionButton label="Export to daily notes" icon="ios-share" onPress={() => comingSoon('Export')} style={{ paddingVertical: 14 }} />
@@ -277,8 +285,8 @@ function PersonCard({ row, now, zone }: { row: CaptureRow; now: number; zone: st
         </View>
       ) : null}
       <View style={[ui.row, { marginTop: 10 }]}>
-        <ActionButton label={`Reply via ${appName(row)}`} icon="reply" compact onPress={() => comingSoon('Reply')} />
-        <ActionButton label="Quick Reply" compact outlined onPress={() => comingSoon('Quick reply')} />
+        <ActionButton label={`Reply via ${appName(row)}`} icon="reply" compact onPress={() => openDetail(row)} />
+        <ActionButton label="Quick Reply" compact outlined onPress={() => openDetail(row)} />
       </View>
     </Card>
   );
