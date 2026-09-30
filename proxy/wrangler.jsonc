@@ -1,0 +1,8 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "pulse-ai-proxy",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-30",
+  // Secret, never in this file or the app: `npx wrangler secret put OPENAI_API_KEY`
+  "observability": { "enabled": false }
+}
