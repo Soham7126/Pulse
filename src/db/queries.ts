@@ -1,6 +1,6 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
-import { defaultMode, type AppMode } from '../capture/packages';
+import { APP_MAP, defaultMode, type AppMode } from '../capture/packages';
 
 export type AppRule = { package_name: string; label: string | null; mode: AppMode };
 export type CaptureRow = {
@@ -19,6 +19,16 @@ export function ensureAppRule(db: SQLiteDatabase, packageName: string, label: st
   const mode = defaultMode(packageName);
   db.runSync('INSERT INTO app_rules (package_name, label, mode) VALUES (?, ?, ?)', packageName, label, mode);
   return mode;
+}
+
+/**
+ * PRD apps are on by default, so they must be listed (and counted) before their first notification.
+ * INSERT OR IGNORE keeps any choice the user already made.
+ */
+export function seedDefaultApps(db: SQLiteDatabase): void {
+  for (const [pkg, info] of Object.entries(APP_MAP)) {
+    db.runSync('INSERT OR IGNORE INTO app_rules (package_name, label, mode) VALUES (?, ?, ?)', pkg, info.label, defaultMode(pkg));
+  }
 }
 
 export function listAppRules(db: SQLiteDatabase): AppRule[] {

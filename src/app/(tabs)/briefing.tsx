@@ -58,11 +58,11 @@ export default function Briefing() {
       <ScrollView contentContainerStyle={s.content}>
         <Card style={{ padding: 20 }}>
           <View style={[ui.row, { justifyContent: 'space-between', alignItems: 'flex-start' }]}>
-            <View style={{ flex: 1, gap: 4 }}>
+            <View style={{ flex: 1, gap: 4, paddingRight: 12 }}>
               <View style={s.sleepChip}>
                 <Icon name="bedtime" size={13} color={COLORS.primary} />
-                <T variant="labelMd" weight="semibold" color={COLORS.primary}>
-                  SLEEP WINDOW • {clockLabel(DEFAULT_SLEEP_START)} - {clockLabel(DEFAULT_SLEEP_END)}
+                <T variant="labelMd" weight="semibold" color={COLORS.primary} style={{ flexShrink: 1 }}>
+                  SLEEP • {clockLabel(DEFAULT_SLEEP_START)} – {clockLabel(DEFAULT_SLEEP_END)}
                 </T>
               </View>
               <T variant="headlineLg" style={{ paddingTop: 4 }}>
@@ -78,7 +78,7 @@ export default function Briefing() {
           </View>
 
           <View style={s.metrics}>
-            <View>
+            <View style={{ flex: 1 }}>
               <T variant="labelSm" weight="medium" color={COLORS.onSurfaceVariant}>
                 TOTAL RECEIVED
               </T>
@@ -89,14 +89,14 @@ export default function Briefing() {
                 </T>
               </T>
             </View>
-            <View style={{ alignItems: 'flex-end' }}>
+            <View style={{ flex: 1, alignItems: 'flex-end' }}>
               <T variant="labelSm" weight="semibold" color={COLORS.tertiary}>
-                WORTH A LOOK
+                REDUCED DOWN TO
               </T>
-              <T variant="headlineLg" color={COLORS.tertiary}>
+              <T variant="headlineLg" color={COLORS.tertiary} style={{ textAlign: 'right' }}>
                 {worth}{' '}
                 <T variant="bodySm" weight="medium" color={COLORS.tertiary}>
-                  from people, work & shopping
+                  worth a look
                 </T>
               </T>
             </View>
@@ -301,6 +301,7 @@ const s = StyleSheet.create({
   sleepChip: {
     flexDirection: 'row',
     alignSelf: 'flex-start',
+    maxWidth: '100%',
     alignItems: 'center',
     gap: 6,
     paddingHorizontal: 10,

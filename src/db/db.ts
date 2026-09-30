@@ -1,5 +1,7 @@
 import { openDatabaseSync, type SQLiteDatabase } from 'expo-sqlite';
 
+import { seedDefaultApps } from './queries';
+
 // Each entry upgrades the schema by one version (tracked in PRAGMA user_version). Append only.
 const MIGRATIONS: readonly string[] = [
   `CREATE TABLE app_rules (
@@ -33,6 +35,7 @@ export function getDb(): SQLiteDatabase {
       opened.execSync(`PRAGMA user_version = ${v + 1}`);
     });
   }
+  seedDefaultApps(opened);
   db = opened;
   return db;
 }
