@@ -19,6 +19,18 @@ const MIGRATIONS: readonly string[] = [
    );
    CREATE INDEX idx_capture_time ON capture_log(posted_at_utc);`,
   `CREATE TABLE settings (key TEXT PRIMARY KEY, value TEXT);`,
+  // Classification (GPT-4o via the proxy) and handled state. NULL classifier = not classified yet.
+  `ALTER TABLE capture_log ADD COLUMN intent TEXT;
+   ALTER TABLE capture_log ADD COLUMN priority TEXT;
+   ALTER TABLE capture_log ADD COLUMN action_required INTEGER;
+   ALTER TABLE capture_log ADD COLUMN action_text TEXT;
+   ALTER TABLE capture_log ADD COLUMN urgency TEXT;
+   ALTER TABLE capture_log ADD COLUMN urgency_note TEXT;
+   ALTER TABLE capture_log ADD COLUMN confidence REAL;
+   ALTER TABLE capture_log ADD COLUMN classifier TEXT;
+   ALTER TABLE capture_log ADD COLUMN status TEXT NOT NULL DEFAULT 'active';
+   ALTER TABLE capture_log ADD COLUMN handled_at_utc INTEGER;
+   CREATE INDEX idx_capture_pending ON capture_log(classifier, posted_at_utc);`,
 ];
 
 let db: SQLiteDatabase | null = null;

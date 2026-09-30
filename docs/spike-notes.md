@@ -68,3 +68,17 @@ Status: **code ready, awaiting first EAS build + on-device test.** Go/no-go is f
 
 - Listener: **GO**. The local Expo module delivers real notifications to the headless JS task on Android 14 (Realme).
 - Widget: **GO**. react-native-android-widget 0.22.1 renders and updates from the headless task (after the `'use no memo'` fix).
+
+## AI layer (pulled forward from M8, 2026-09-30)
+
+Decisions (user):
+- **Provider: OpenAI GPT-4o** (PRD open question 4). Called through the **Responses API** with strict JSON-schema output and `store: false`.
+- **Proxy: Cloudflare Worker** in `proxy/` (`wrangler.jsonc`). The key lives only in the Worker (`npx wrangler secret put OPENAI_API_KEY`), never in the app. The app reads the Worker URL from `EXPO_PUBLIC_AI_PROXY_URL` in `.env` (public, not a secret).
+- **Classifier: GPT-4o for every allowed notification** (overrides the PRD's "rules first" default). While AI is off, offline or failing, rows keep the source-app fallback (`bucketFor`) and are retried later (`classifyPending` runs after each capture and whenever the app opens).
+- **AI toggle** (Ask Pulse tab) is **off by default** (PRD §9 opt-in). Nothing leaves the phone until it's on.
+
+Contract: `src/ai/contract.ts` is shared by the app and the Worker. It validates requests (Worker side) and responses (app side). Only `{id, app, sender, redacted text ≤300 chars, local time}` is sent. Never the notification key or package name (see `__tests__/ai-payload.test.ts`).
+
+Proxy abuse limits: per-install and per-IP, 120 requests / 10 min per isolate (in-memory; move to KV if abused), 64 KB body cap, no logging of bodies. Also set a monthly spend limit on the OpenAI project. Phase 2's RevenueCat webhook is the real gate.
+
+Reply: `NotificationListener.reply(key, text)` fires the source notification's inline-reply `RemoteInput` action (like replying from the shade). It only works while that notification is still showing; otherwise the UI offers "Share draft".

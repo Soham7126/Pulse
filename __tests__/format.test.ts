@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 import { DateTime } from 'luxon';
 
-import { bucketFor, groupByBucket } from '../src/classify/buckets';
+import { bucketFor, bucketOf, byAttention, groupByBucket, needsAttention, type Classifiable } from '../src/classify/buckets';
 import { clockLabel, greeting, headerDate, shortTime, startOfLocalDay } from '../src/time/format';
 
 const ZONES = ['Asia/Kolkata', 'America/New_York', 'Pacific/Auckland'];
@@ -57,8 +57,21 @@ describe('clockLabel', () => {
   });
 });
 
+const row = (over: Partial<Classifiable> = {}): Classifiable => ({
+  package_name: 'com.whatsapp',
+  intent: null,
+  priority: null,
+  action_required: null,
+  classifier: null,
+  status: 'active',
+  posted_at_utc: 0,
+  ...over,
+});
+const classified = (intent: Classifiable['intent'], priority: Classifiable['priority'], action = 0) =>
+  row({ classifier: 'llm', intent, priority, action_required: action });
+
 describe('buckets', () => {
-  it('routes PRD apps by default intent and everything else to quiet', () => {
+  it('routes unclassified rows by the source app', () => {
     expect(bucketFor('com.whatsapp')).toBe('people');
     expect(bucketFor('com.linkedin.android')).toBe('work');
     expect(bucketFor('com.flipkart.android')).toBe('shopping');
@@ -66,9 +79,45 @@ describe('buckets', () => {
     expect(bucketFor('com.antivirus')).toBe('quiet');
   });
 
+  it('routes classified rows by GPT-4o intent and priority', () => {
+    expect(bucketOf(classified('communication', 'high', 1))).toBe('people');
+    expect(bucketOf(classified('communication', 'noise'))).toBe('quiet');
+    expect(bucketOf(classified('delivery', 'low'))).toBe('shopping');
+    expect(bucketOf(classified('shopping', 'noise'))).toBe('quiet');
+    expect(bucketOf(classified('security', 'high', 1))).toBe('work');
+    expect(bucketOf({ ...classified('noise', 'noise'), package_name: 'com.whatsapp' })).toBe('quiet');
+  });
+
   it('groups rows', () => {
-    const g = groupByBucket([{ package_name: 'com.whatsapp' }, { package_name: 'com.instagram.android' }]);
+    const g = groupByBucket([row(), row({ package_name: 'com.instagram.android' })]);
     expect(g.people).toHaveLength(1);
     expect(g.quiet).toHaveLength(1);
+  });
+});
+
+describe('needsAttention', () => {
+  it('high priority or medium-with-action needs attention; low/noise do not', () => {
+    expect(needsAttention(classified('communication', 'high'))).toBe(true);
+    expect(needsAttention(classified('work', 'medium', 1))).toBe(true);
+    expect(needsAttention(classified('communication', 'medium', 0))).toBe(false);
+    expect(needsAttention(classified('shopping', 'low', 1))).toBe(false);
+    expect(needsAttention(classified('noise', 'noise'))).toBe(false);
+  });
+
+  it('handled items never need attention', () => {
+    expect(needsAttention({ ...classified('communication', 'high', 1), status: 'handled' })).toBe(false);
+    expect(needsAttention({ ...row(), status: 'handled' })).toBe(false);
+  });
+
+  it('unclassified people/work items count until GPT-4o answers', () => {
+    expect(needsAttention(row())).toBe(true);
+    expect(needsAttention(row({ package_name: 'com.instagram.android' }))).toBe(false);
+  });
+
+  it('orders high priority first, then newest', () => {
+    const old = { ...classified('communication', 'high'), posted_at_utc: 1 };
+    const fresh = { ...classified('communication', 'medium', 1), posted_at_utc: 9 };
+    const newestHigh = { ...classified('work', 'high'), posted_at_utc: 5 };
+    expect([fresh, old, newestHigh].sort(byAttention)).toEqual([newestHigh, old, fresh]);
   });
 });

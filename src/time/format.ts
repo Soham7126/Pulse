@@ -37,3 +37,6 @@ export function shortTime(utc: number, nowUtc: number, zone: string): string {
 export function clockLabel(hhmm: string): string {
   return DateTime.fromFormat(hhmm, 'HH:mm', { locale: 'en-US' }).toFormat('h:mm a');
 }
+
+/** The device's current IANA zone (display and "today" use the current zone; receipts keep their own). */
+export const deviceZone = (): string => DateTime.local().zoneName;

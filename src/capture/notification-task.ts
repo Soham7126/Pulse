@@ -1,4 +1,5 @@
 import type { RawNotification } from '../../modules/notification-listener';
+import { classifyPending } from '../ai/classify';
 import { getDb } from '../db/db';
 import { ensureAppRule, upsertCapture } from '../db/queries';
 import { dropReason } from '../ingest/filter';
@@ -25,5 +26,7 @@ export async function onNotification(n: RawNotification): Promise<void> {
     posted_at_utc: n.postTime,
   });
   console.log(`[pulse] ${isNew ? 'new' : 'update'} ${meta}`);
+  // Show it immediately (source-app fallback), then again once GPT-4o has classified it.
   await refreshWidgets(isNew);
+  if ((await classifyPending()) > 0) await refreshWidgets(false);
 }

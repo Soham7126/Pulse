@@ -148,7 +148,7 @@ export function PulseMediumWidget({ snapshot, frame, size }: Props) {
         <FlexWidget style={{ width: 'match_parent', height: 1, backgroundColor: C.divider }} />
         <FlexWidget style={{ width: 'match_parent', flexDirection: 'row', alignItems: 'center', flexGap: 6 }}>
           <TextWidget
-            text={`${snapshot.total} notifications → ${snapshot.worth} worth a look`}
+            text={`${snapshot.total} notifications → ${snapshot.worth} important`}
             style={{ fontFamily: MONO, fontSize: 10, color: C.inkSoft }}
             maxLines={2}
           />

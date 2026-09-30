@@ -1,16 +1,32 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
+import type { AiIntent, AiPriority, AiUrgency, Classification } from '../ai/contract';
 import { APP_MAP, defaultMode, type AppMode } from '../capture/packages';
 
 export type AppRule = { package_name: string; label: string | null; mode: AppMode };
+export type CaptureStatus = 'active' | 'handled';
 export type CaptureRow = {
+  id: number;
   key: string;
   package_name: string;
   label: string | null;
   title: string | null;
   text: string | null;
   posted_at_utc: number;
+  intent: AiIntent | null;
+  priority: AiPriority | null;
+  action_required: number | null;
+  action_text: string | null;
+  urgency: AiUrgency | null;
+  urgency_note: string | null;
+  confidence: number | null;
+  classifier: 'llm' | null;
+  status: CaptureStatus;
 };
+
+const CAPTURE_COLUMNS = `c.rowid AS id, c.key, c.package_name, r.label, c.title, c.text, c.posted_at_utc,
+  c.intent, c.priority, c.action_required, c.action_text, c.urgency, c.urgency_note, c.confidence, c.classifier, c.status`;
+const CAPTURE_FROM = 'FROM capture_log c LEFT JOIN app_rules r ON r.package_name = c.package_name';
 
 /** Returns the app's mode, creating its rule with the default the first time the app is seen. */
 export function ensureAppRule(db: SQLiteDatabase, packageName: string, label: string | null): AppMode {
@@ -42,12 +58,21 @@ export function setAppMode(db: SQLiteDatabase, packageName: string, mode: 'allow
   db.runSync("UPDATE app_rules SET mode = ? WHERE package_name = ? AND mode != 'blocked'", mode, packageName);
 }
 
-/** Insert or update-in-place by notification key. Returns true when the key is new. Text must already be redacted. */
-export function upsertCapture(db: SQLiteDatabase, row: Omit<CaptureRow, 'label'>): boolean {
+/**
+ * Insert or update-in-place by notification key. Returns true when the key is new. Text must already be redacted.
+ * New text on an existing key (e.g. another message in the same chat) needs a fresh look: re-classify and re-open it.
+ */
+export function upsertCapture(
+  db: SQLiteDatabase,
+  row: { key: string; package_name: string; title: string | null; text: string | null; posted_at_utc: number },
+): boolean {
   const existed = db.getFirstSync('SELECT 1 FROM capture_log WHERE key = ?', row.key) !== null;
   db.runSync(
     `INSERT INTO capture_log (key, package_name, title, text, posted_at_utc) VALUES (?, ?, ?, ?, ?)
-     ON CONFLICT(key) DO UPDATE SET title = excluded.title, text = excluded.text, posted_at_utc = excluded.posted_at_utc`,
+     ON CONFLICT(key) DO UPDATE SET
+       classifier = CASE WHEN excluded.text IS capture_log.text THEN capture_log.classifier ELSE NULL END,
+       status = CASE WHEN excluded.text IS capture_log.text THEN capture_log.status ELSE 'active' END,
+       title = excluded.title, text = excluded.text, posted_at_utc = excluded.posted_at_utc`,
     row.key,
     row.package_name,
     row.title,
@@ -59,12 +84,60 @@ export function upsertCapture(db: SQLiteDatabase, row: Omit<CaptureRow, 'label'>
 
 export function listCaptures(db: SQLiteDatabase, limit = 100, sinceUtc = 0): CaptureRow[] {
   return db.getAllSync<CaptureRow>(
-    `SELECT c.key, c.package_name, r.label, c.title, c.text, c.posted_at_utc
-     FROM capture_log c LEFT JOIN app_rules r ON r.package_name = c.package_name
-     WHERE c.posted_at_utc >= ?
-     ORDER BY c.posted_at_utc DESC LIMIT ?`,
+    `SELECT ${CAPTURE_COLUMNS} ${CAPTURE_FROM} WHERE c.posted_at_utc >= ? ORDER BY c.posted_at_utc DESC LIMIT ?`,
     sinceUtc,
     limit,
+  );
+}
+
+export function getCapture(db: SQLiteDatabase, id: number): CaptureRow | null {
+  return db.getFirstSync<CaptureRow>(`SELECT ${CAPTURE_COLUMNS} ${CAPTURE_FROM} WHERE c.rowid = ?`, id);
+}
+
+/** Earlier notifications from the same app + sender, for the detail screen's timeline and the draft's context. */
+export function listThread(db: SQLiteDatabase, row: CaptureRow, limit = 5): CaptureRow[] {
+  return db.getAllSync<CaptureRow>(
+    `SELECT ${CAPTURE_COLUMNS} ${CAPTURE_FROM}
+     WHERE c.package_name = ? AND c.title IS ? AND c.rowid != ? ORDER BY c.posted_at_utc DESC LIMIT ?`,
+    row.package_name,
+    row.title,
+    row.id,
+    limit,
+  );
+}
+
+/** Unclassified, still-active captures since `sinceUtc`, oldest first so a backlog drains in order. */
+export function listPendingClassification(db: SQLiteDatabase, sinceUtc: number, limit: number): CaptureRow[] {
+  return db.getAllSync<CaptureRow>(
+    `SELECT ${CAPTURE_COLUMNS} ${CAPTURE_FROM}
+     WHERE c.classifier IS NULL AND c.status = 'active' AND c.posted_at_utc >= ?
+     ORDER BY c.posted_at_utc ASC LIMIT ?`,
+    sinceUtc,
+    limit,
+  );
+}
+
+export function saveClassification(db: SQLiteDatabase, id: number, c: Classification): void {
+  db.runSync(
+    `UPDATE capture_log SET intent = ?, priority = ?, action_required = ?, action_text = ?, urgency = ?,
+       urgency_note = ?, confidence = ?, classifier = 'llm' WHERE rowid = ?`,
+    c.intent,
+    c.priority,
+    c.action_required ? 1 : 0,
+    c.action_text,
+    c.urgency,
+    c.urgency_note,
+    c.confidence,
+    id,
+  );
+}
+
+export function setHandled(db: SQLiteDatabase, id: number, handled: boolean, nowUtc: number): void {
+  db.runSync(
+    'UPDATE capture_log SET status = ?, handled_at_utc = ? WHERE rowid = ?',
+    handled ? 'handled' : 'active',
+    handled ? nowUtc : null,
+    id,
   );
 }
 

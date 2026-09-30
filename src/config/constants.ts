@@ -18,6 +18,8 @@ export const SYSTEM_PACKAGES: ReadonlySet<string> = new Set(['android', 'com.and
 export const REDACTION_MASK = '••••';
 
 export const LAST_SEEN_KEY = 'last_seen_utc';
+export const AI_ENABLED_KEY = 'ai_enabled';
+export const INSTALL_ID_KEY = 'install_id';
 
 // PRD §8 defaults; user-editable settings arrive in M3.
 export const DEFAULT_SLEEP_START = '23:00';

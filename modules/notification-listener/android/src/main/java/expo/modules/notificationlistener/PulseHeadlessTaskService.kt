@@ -14,6 +14,7 @@ class PulseHeadlessTaskService : HeadlessJsTaskService() {
   companion object {
     // Must match NOTIFICATION_TASK in modules/notification-listener/index.ts.
     const val TASK_NAME = "PulseNotification"
-    private const val TIMEOUT_MS = 10_000L
+    // Room for the GPT-4o classification round trip after capture.
+    private const val TIMEOUT_MS = 45_000L
   }
 }
