@@ -45,7 +45,7 @@ For each item return:
   noise = promotions, likes, follows, social engagement, generic app updates.
 - action_required: true only if the user is expected to do or reply something.
 - action_text: short imperative (max 60 chars) like "Send the DBMS assignment", else null.
-- urgency: now | today | soon | none. urgency_note: max 40 chars like "Due tonight before 11:59 PM", else null.
+- urgency: now | today | soon | none. urgency_note: max 40 chars like "Due tonight", else null. Only mention a time or date if the text states it.
 - confidence: 0..1.
 Text may contain •••• where digits were redacted. Messages may be in English, Hindi or Hinglish. Never invent facts. Return one result per input id.`;
 
@@ -56,7 +56,7 @@ Use the provided local time for words like "today" or "tonight". citation_ids = 
 const DRAFT_PROMPT = `You help the user handle one notification.
 summary: one sentence saying what the sender wants, in plain English.
 intent_label: 2-4 words (e.g. "Action request / academic deadline").
-urgency_label: short (e.g. "Due tonight (about 3 hours left)" or "No rush"), using the provided local time.
+urgency_label: short (e.g. "Due tonight" or "No rush"), using the provided local time. Only mention a deadline time if the text states it.
 draft: a short reply the user could send (max 200 chars), matching the sender's language and tone (Hinglish is fine), no placeholders like [name].
 Use null for draft if replying makes no sense (e.g. a delivery update). A higher variant number means: give a noticeably different phrasing.
 confidence: 0..1. Text may contain •••• where digits were redacted; never guess them.`;
