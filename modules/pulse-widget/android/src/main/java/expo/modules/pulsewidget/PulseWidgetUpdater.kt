@@ -69,9 +69,11 @@ object PulseWidgetUpdater {
     manager.updateAppWidget(widgetId, views)
   }
 
+  // Launchers over-report: Realme says 175dp (min and max) for a 146dp slot. Thresholds leave that ~20% headroom,
+  // so a 2-cell-tall widget shows 2 rows and a resized 3-cell one shows 3.
   private fun rowsThatFit(minHeightDp: Int): Int = when {
-    minHeightDp >= 170 -> 3
-    minHeightDp >= 135 -> 2
+    minHeightDp >= 210 -> 3
+    minHeightDp >= 120 -> 2
     else -> 1
   }
 

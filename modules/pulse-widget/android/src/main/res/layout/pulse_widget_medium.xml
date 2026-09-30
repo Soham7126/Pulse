@@ -39,7 +39,7 @@
       android:gravity="center_vertical"
       android:orientation="horizontal">
 
-      <View
+      <FrameLayout
         android:layout_width="7dp"
         android:layout_height="7dp"
         android:background="@drawable/pulse_dot" />
@@ -70,12 +70,12 @@
       android:id="@+id/pulse_row1"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_marginTop="4dp"
+      android:layout_marginTop="3dp"
       android:background="@drawable/pulse_row_bg"
       android:gravity="center_vertical"
       android:orientation="horizontal"
       android:paddingHorizontal="10dp"
-      android:paddingVertical="4dp"
+      android:paddingVertical="3dp"
       android:visibility="gone">
 
       <TextView
@@ -113,12 +113,12 @@
       android:id="@+id/pulse_row2"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_marginTop="4dp"
+      android:layout_marginTop="3dp"
       android:background="@drawable/pulse_row_bg"
       android:gravity="center_vertical"
       android:orientation="horizontal"
       android:paddingHorizontal="10dp"
-      android:paddingVertical="4dp"
+      android:paddingVertical="3dp"
       android:visibility="gone">
 
       <TextView
@@ -156,12 +156,12 @@
       android:id="@+id/pulse_row3"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_marginTop="4dp"
+      android:layout_marginTop="3dp"
       android:background="@drawable/pulse_row_bg"
       android:gravity="center_vertical"
       android:orientation="horizontal"
       android:paddingHorizontal="10dp"
-      android:paddingVertical="4dp"
+      android:paddingVertical="3dp"
       android:visibility="gone">
 
       <TextView
@@ -195,12 +195,12 @@
         android:textSize="12sp" />
     </LinearLayout>
 
-    <View
+    <FrameLayout
       android:layout_width="match_parent"
       android:layout_height="0dp"
       android:layout_weight="1" />
 
-    <View
+    <FrameLayout
       android:layout_width="match_parent"
       android:layout_height="1dp"
       android:background="#E8DFD3" />
