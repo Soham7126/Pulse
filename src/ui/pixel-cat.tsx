@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { DEFAULT_PALETTE } from '../cat/palette';
-import { SPRITE_SIZE, spriteToRects, type PoseId } from '../cat/sprite';
+import { SPRITE_SIZE, frameAt, spriteToRects, type PoseId } from '../cat/sprite';
 import { SPRITES } from '../cat/sprites';
 
 type Props = { pose: PoseId; scale: number; animate?: boolean };
@@ -20,7 +20,7 @@ export function PixelCat({ pose, scale, animate = true }: Props) {
   }, [sprite, animate]);
 
   const s = Math.max(1, Math.round(scale));
-  const frame = sprite.frames[sprite.sequence[step]];
+  const frame = frameAt(sprite, step);
   return (
     <View style={{ width: SPRITE_SIZE * s, height: SPRITE_SIZE * s }}>
       {spriteToRects(frame, DEFAULT_PALETTE).map((r, i) => (

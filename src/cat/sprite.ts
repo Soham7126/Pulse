@@ -17,6 +17,16 @@ export type Palette = Record<string, string>;
 
 export type PixelRect = { x: number; y: number; w: number; color: string };
 
+/**
+ * Frame for an idle-loop step. Wraps, because a pose change swaps in a sprite with a shorter loop
+ * before any reset can run (awake_sit has 10 steps, sleep_curled 6).
+ */
+export function frameAt(sprite: Sprite, step: number): string[] {
+  const n = sprite.sequence.length;
+  const index = sprite.sequence[((step % n) + n) % n];
+  return sprite.frames[index] ?? sprite.frames[0];
+}
+
 /** Merges horizontal runs of the same colour into rects so renderers draw far fewer shapes. */
 export function spriteToRects(frame: string[], palette: Palette): PixelRect[] {
   const rects: PixelRect[] = [];

@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 
 import { DEFAULT_PALETTE } from '../src/cat/palette';
 import { renderSceneSvg } from '../src/cat/scene';
-import { renderSpriteToSvg, SPRITE_SIZE, spriteToRects } from '../src/cat/sprite';
+import { frameAt, renderSpriteToSvg, SPRITE_SIZE, spriteToRects } from '../src/cat/sprite';
 import { SPRITES } from '../src/cat/sprites';
 
 describe('sprite assets', () => {
@@ -25,6 +25,22 @@ describe('sprite assets', () => {
       for (const frame of sprite!.frames) expect(frame[SPRITE_SIZE - 1].replace(/\./g, '').length).toBeGreaterThan(0);
     });
   }
+});
+
+describe('frameAt', () => {
+  it('survives a pose change to a shorter loop (the Mark Handled crash)', () => {
+    const awake = SPRITES.awake_sit!;
+    const asleep = SPRITES.sleep_curled!;
+    const step = awake.sequence.length - 3; // valid for awake, past the end of sleep's loop
+    expect(step).toBeGreaterThanOrEqual(asleep.sequence.length);
+    expect(frameAt(asleep, step)).toHaveLength(SPRITE_SIZE);
+  });
+
+  it('wraps and follows the sequence', () => {
+    const s = { id: 'awake_sit' as const, fps: 1, sequence: [1, 0], frames: [['a'], ['b']] };
+    expect(frameAt(s, 0)).toEqual(['b']);
+    expect(frameAt(s, 3)).toEqual(['a']);
+  });
 });
 
 describe('spriteToRects', () => {
